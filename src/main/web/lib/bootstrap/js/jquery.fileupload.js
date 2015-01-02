@@ -962,6 +962,17 @@
         },
 
         _onAdd: function (e, data) {
+            // The maximum file size to load:
+            var loadMaxFileSize = 512000 // 512kb
+            if(data.files.length>0){
+                for(var i=0; i<data.files.length; i++){
+                    if(data.files[i]['size'] > loadMaxFileSize) {
+                        alert('The size of the file you tried to provide:\''+data.files[i]['name']+'\' is: ' + data.files[i]['size'] 
+                            + ' which exceeds the allowed size:' + loadMaxFileSize + '...\nPlease provide a smaller file thanks');
+                        return
+                    }
+                }
+            }
             var that = this,
                 result = true,
                 options = $.extend({}, this.options, data),

@@ -26,7 +26,7 @@ Then, there are basically two ways to interact with the A.I. server,
 
 ####1) Browser mode:
 
-Open a browser and enter: http://127.0.0.1:9798/ in the address bar and you will be brought to the contents management console page as follow:
+Open a browser and enter: http://127.0.0.1:8080/ in the address bar and you will be brought to the contents management console page as follow:
 
 <img src="doc/screenshot-web-1.png"/>
 

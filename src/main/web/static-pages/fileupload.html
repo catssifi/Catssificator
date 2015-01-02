@@ -19,9 +19,7 @@
 <div class="container" style="margin-left:10px; padding: 0px">
     <br>
     <!-- The file upload form used as target for the file upload widget -->
-    <form id="fileupload" action="http://jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
-        <!-- Redirect browsers with JavaScript disabled to the origin page -->
-        <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
+    <form id="fileupload" method="POST" enctype="multipart/form-data">
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="row fileupload-buttonbar">
             <div class="col-lg-7">
@@ -62,8 +60,8 @@
     <div>
             <ul>
                 <li>Suported files are only *.txt, *.data, *.dat or *.csv</li>
-                <li>The maximum file size for uploads in this demo is <strong>5 MB</strong></li>
                 <li>You can drag & drop files from your desktop on this page</li>
+                <li>The maximum file size for uploads in this demo is <strong>500KB</strong> (Yes, only 0.5MB for now, due to our limited web server resources/bandwidth)</li>
             </ul>
     </div>
 </div>

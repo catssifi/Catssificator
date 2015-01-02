@@ -30,7 +30,7 @@ from threading import Thread
 from query_processor import QueryProcessor
 from request_ticket_system import RequestTicketSystem
 from lib.utils import *
-from web.index_page_handler import HomePageHandler, UploadPageHandler
+from web.index_page_handler import HomePageHandler, UploadPageHandler, AboutPageHandler
 from web.api_handler import APIHandler
 from web.fileupload_handler import FileUploadHandler
 from web.static_file_handler import StaticFileHandler
@@ -38,7 +38,7 @@ from lib.config import Config
 
 log = get_logger("Main")    
 server_addr = ('', 9797)
-server_addr_2 = ('', 9798)
+server_addr_2 = ('', Config.Instance().get_yaml_data(['common', 'ui_server_port'], '80'))
 
 class WebStaticFileHandler(StaticFileHandler):
     
@@ -92,12 +92,13 @@ application = tornado.web.Application([
     (r'/fileupload', FileUploadHandler),
     (r'/api/(.*)', APIHandler), 
     (r"/", HomePageHandler),
-    (r"/upload.html", UploadPageHandler)
+    (r"/upload.html", UploadPageHandler),
+    (r"/about.html", AboutPageHandler)
 ])
 
 
 _RESTful_server = HTTPServer(server_addr, CCRequestHandler)
-
+new_retry_port=0
 def start_RESTFul_server():
     #This is for the command and restful usage
     _RESTful_server.allow_reuse_address = True
@@ -105,7 +106,14 @@ def start_RESTFul_server():
 
 def start_UI_server():
     #This is for interactive Web UI application
-    application.listen(server_addr_2[1])
+    try:
+        application.listen(server_addr_2[1])
+        log.info('Catssificator web management console has successfully started at: http://127.0.0.1:%s' % (server_addr_2[1]))
+    except Exception as e:
+        new_retry_port = 8080
+        log.error('Port: %s has been taken...trying new port: %s ' % (server_addr_2[1], new_retry_port))
+        application.listen(new_retry_port)
+        log.info('Catssificator web management console has successfully started at: http://127.0.0.1:%s' % (new_retry_port))
     tornado.ioloop.IOLoop.instance().start() 
 
 if __name__ == '__main__':
@@ -113,7 +121,6 @@ if __name__ == '__main__':
     t1 = thread.start_new_thread( start_RESTFul_server, ())
     if Config.Instance().get_mode() == 'prod':
         t2 = thread.start_new_thread( start_UI_server, ())
-        log.info('Catssificator web management console has successfully started at: %s' % ('http://127.0.0.1:9798/'))
     else:
         log.info('Catssificator is running as dev (console) mode only.')
     log = get_logger('Main')

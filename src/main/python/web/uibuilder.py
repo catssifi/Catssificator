@@ -20,6 +20,7 @@
 
 from backend.category import Category
 from lib.singleton import Singleton
+from lib.utils import debug
 '''
 This class is to build all the web UI components and return the html code in each individual method
 '''
@@ -34,10 +35,20 @@ class UIBuilder():
     def get_category_menu(self):
         return self._category_menu_in_html
         
+_dic_sub_categories = {}
+_category_menu = None
 
-def build_category_menu(category_num=None):
+def build_category_menu(category_num=None, refresh=False):
+    
+    global _category_menu
+    global _dic_sub_categories
+    
+    if _category_menu and not refresh:
+        return _category_menu
+    
     categories=None
     str=''
+    #debug()
     if category_num:
         categories = Category.Instance().get_categories(category_num)
         str='<ul>'
@@ -47,9 +58,14 @@ def build_category_menu(category_num=None):
         categories = Category.Instance().get_categories()
         str='<ul id="category_menu">'
     
+    sub_categories = None
     for category in categories:
         if Category.Instance().is_this_category_num_parent(category[0]):
-            sub_categories=build_category_menu(category[0])
+            if category[0] not in _dic_sub_categories:
+                sub_categories=build_category_menu(category[0])
+                _dic_sub_categories[category[0]] = sub_categories
+            else:
+                sub_categories=_dic_sub_categories[category[0]]
             #if sub_categories:
             str+=('<li select-able="false" cat-num="%s">'+category[1])%(category[0])
             str+=sub_categories
@@ -57,4 +73,6 @@ def build_category_menu(category_num=None):
             str+=('<li select-able="true" cat-num="%s">'+category[1])%(category[0])
         str+='</li>'
     str+='</ul>'
+    
+    _category_menu = str
     return str

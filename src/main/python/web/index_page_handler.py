@@ -31,3 +31,9 @@ class UploadPageHandler(BaseHandler):
         #self.write("Hello, world")
         _category_menu_in_html = UIBuilder.Instance().get_category_menu()
         self.render("upload.html", categories=_category_menu_in_html)
+        
+class AboutPageHandler(BaseHandler):
+    def get(self):
+        #self.write("Hello, world")
+        _category_menu_in_html = UIBuilder.Instance().get_category_menu()
+        self.render("about.html")

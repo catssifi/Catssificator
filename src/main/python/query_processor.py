@@ -82,7 +82,7 @@ class QueryProcessor(Loggable):
             words = self.process_query(query);
             for word in words:
                 self._datastore.store(word, category_num)
-            response_str = {"result":"yes", "message":"query: \'%s\' has been processed!"% (query)}
+            response_str = {"result":"yes", "message":"query: \'%s\' has been processed!"% (extract_head_tail(query))}
             if dumps_it:
                 response_str = dumps(response_str)
         return response_str

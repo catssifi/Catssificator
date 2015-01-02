@@ -4,3 +4,5 @@ common:
 
   #Of relative path format
   file_upload_base_dir: 'catssificator-upload'
+
+  ui_server_port: '80'
