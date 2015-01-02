@@ -1,0 +1,1 @@
+This directory should only contain all program-generated data! (i.e. not human readable)

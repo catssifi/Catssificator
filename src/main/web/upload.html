@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  	<meta charset="utf-8">
+    <title>Catssificator - contents management console</title>
+    <link href="/static/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap styles -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  	<link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+  	<script>
+      $(function() {
+        $( "#category_menu" ).menu();
+        $( "#category_menu" ).menu({
+        select: function( event, ui ) {
+          if (ui.item[0].attributes['select-able'].nodeValue == "true") {
+            var selectedName = encodeURIComponent(ui.item[0].innerHTML);
+            var selectedCatNum = ui.item[0].attributes['cat-num'].nodeValue
+            issueAjaxCallOnSelectedCategory_and_refreshUI(selectedName, selectedCatNum)
+          }
+        }
+        });
+      });
+
+      $( "#txtSearchQueryInput" ).bind('input propertychange', function() {
+        txtSearchQueryInput_update();
+      });
+
+      $( "#butReset" ).click(function() {
+        butReset_click();
+      });
+
+      function issueAjaxCallOnSelectedCategory_and_refreshUI (selectedCategory, selectedCatNum) {
+        //alert(selectedName)
+        //Please don't call the encodeURIComponent() in the below argument passing
+            $.ajax({url:"/api/get_full_name", data:"selectedName="+selectedCategory, success:function(result){
+              //alert(result)
+              $("#divSelectedCategoryDesc").html(decorateWithHeader(result, 4));
+              $("#hidSelectedCategory")[0].value = selectedCategory;
+              $("#hidSelectedCategoryNum")[0].value = selectedCatNum
+              refresh_ui();
+            }});
+      }
+
+      function parseJson(j) {
+        return jQuery.parseJSON(j);
+      }
+
+      function getMessagesFromJson(j) {
+        if (j.length) {
+          var resultMsgs=""
+          for(i=0; i<j.length; i++){
+            resultMsgs+=j[i].message+'<br/>'
+          }
+          return resultMsgs
+        } else {
+          return j.message
+        }
+      }
+
+      function decorateWithHeader(rawMsg, headerSize) {
+        return '<h' + headerSize + '>' + rawMsg + '</h'+headerSize+'>'
+        //return rawMsg;
+      }
+
+      function decorateWithSucessfulMessage (rawMsg) {
+        htmlMsg = '<table><tr><td><img src="/static/lib/bootstrap/img/okay-small.png" width="30px" height="30px" style="vertical-align:middle"></img></td><td>'
+        htmlMsg += '<font color=blue><b>'+rawMsg+'</b></font></td></tr></table>'
+        return htmlMsg
+      }
+
+      function issueAjaxCallOnSubmitQueryButtonPressed (selectedCatNum, query) {
+          $.ajax({
+            url:"/api/submit_query", 
+            data: "categoryNum=" + selectedCatNum + "&query=" + encodeURIComponent(query), success:
+            function(result) {
+              j = parseJson(result);
+              resultMsg = getMessagesFromJson(j)
+              resultMsg=decorateWithSucessfulMessage(resultMsg)
+              displayResultMessage("#divSearchQueryResult", resultMsg)
+            } 
+            });
+      }
+
+      function issueAjaxCallOnFileUploadButtonPressed (selectedCatNum, tokensStr) {
+          $.ajax({
+            url:"/api/submit_upload", 
+            data: "categoryNum=" + selectedCatNum + "&tokensStr=" + encodeURIComponent(tokensStr), success:
+            function(result) {
+              j = parseJson(result);
+              resultMsg = getMessagesFromJson(j)
+              resultMsg=decorateWithSucessfulMessage(resultMsg)
+              displayResultMessage("#divFileUploadResult", resultMsg)
+
+              //Reload the iframe page
+              $( '#iframeFileUpload' ).attr( 'src', function ( i, val ) { return val; });
+            } 
+            });
+      }
+
+      function displayResultMessage(whichUI, msg) {
+        $(whichUI).html(msg)
+      }
+
+      function txtSearchQueryInput_click() {
+
+            $( "#txtSearchQueryInput" ).select();
+
+            // Para Chrome's que da problema
+            $( "#txtSearchQueryInput" ).on("mouseup", function() {
+                // Unbindeamos el mouseup
+                $( "#txtSearchQueryInput" ).off("mouseup");
+                return false;
+            });
+      }
+
+      function txtSearchQueryInput_update() {
+        if (isTxtSearchQueryInputEmpty()) {
+          refresh_ui_buttons_panel_1(getPointerEventsValueOff(), getOpacityOff()); 
+
+          //Turns on the category menu
+          refresh_ui_category_menu(getPointerEventsValueOn(), getOpacityOn())          
+        } else {
+          refresh_ui_buttons_panel_1(getPointerEventsValueOn(), getOpacityOn()); 
+
+          //Turns off the category menu
+          refresh_ui_category_menu(getPointerEventsValueOff(), getOpacityOff())
+
+          displayResultMessage("#divSearchQueryResult", '') //reset the result box
+        }
+      }
+
+      function butSubmit_1_click() {
+        var selectedCatNum = $("#hidSelectedCategoryNum").val();
+        var query = $("#txtSearchQueryInput").val();
+        issueAjaxCallOnSubmitQueryButtonPressed(selectedCatNum, query);
+      }
+
+      function butSubmit_2_click() {
+        var selectedCatNum = $("#hidSelectedCategoryNum").val();
+        var tokensStr = "";
+        var uploadedTokens = $("#iframeFileUpload").contents().find("input[type='hidden']").each(
+            function(){
+              tokensStr+=$(this).val()+",";
+            }
+          );
+        issueAjaxCallOnFileUploadButtonPressed(selectedCatNum, tokensStr);
+      }
+
+
+      function butReset_click() {
+        $("#divSelectedCategoryDesc").html(decorateWithHeader('--', 4));
+        $( "#hidSelectedCategory")[0].value="";  //reset the hidden controlling field
+        $( "#hidSelectedCategoryNum")[0].value="";  //reset the hidden controlling field
+        setTxtSearchQueryInputToEmpty();
+        refresh_ui();
+      }
+
+      function isTxtSearchQueryInputEmpty() {
+        var sqInput = $( "#txtSearchQueryInput" ).val();
+        return ( sqInput == '') || (sqInput.indexOf('Your search query...')>-1);
+      }
+
+      function setTxtSearchQueryInputToEmpty() {
+        setTxtSearchQueryInput('Your search query...');
+      }
+
+      function setTxtSearchQueryInput(v) {
+        $( "#txtSearchQueryInput" ).val(v)
+      }
+
+      function isAnyCategorySelected() {
+        return ($( "#hidSelectedCategory")[0].value!="");
+      }
+
+      function isFileUploadEmpty() {
+        if ($("#iframeFileUpload").contents().find('#hidUploadedToken').length>0) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+
+      function refresh_ui() {
+        var pointer_events_value=getPointerEventsValueOn()
+        var opacity=getOpacityOn()
+        if(!isAnyCategorySelected()) {
+          opacity=getOpacityOff()
+          pointer_events_value=getPointerEventsValueOff()
+          refresh_ui_search_query_input(pointer_events_value, opacity);
+          refresh_ui_fileupload(pointer_events_value, opacity);
+          refresh_ui_buttons_panel_1(pointer_events_value, opacity); 
+          refresh_ui_buttons_panel_2(pointer_events_value, opacity);
+
+          //Turns on the category menu
+          refresh_ui_category_menu(getPointerEventsValueOn(), getOpacityOn())
+        } else {  //An category has been selected
+          refresh_ui_search_query_input(pointer_events_value, opacity);
+
+          //Turns off the fileupload menu
+          refresh_ui_fileupload(getPointerEventsValueOff(), getOpacityOff())
+          refresh_ui_buttons_panel_2(getPointerEventsValueOff(), getOpacityOff())
+        } 
+      }
+
+      function refresh_ui_category_menu(p1, p2) {
+          $( "#category_menu" ).css("pointer-events", p1).delay(10);
+          $( "#category_menu" ).css("opacity", p2).delay(10);
+      }
+
+      function refresh_ui_fileupload(p1, p2) {
+          $( "#divFileUpload" ).css("pointer-events", p1);
+          $( "#divFileUpload" ).css("opacity", p2);
+          $( "#divFileUploadDesc" ).css("opacity", p2);
+      }
+
+      function refresh_ui_search_query_input(p1, p2) {
+          $( "#divSearchQueryInput" ).css("pointer-events", p1);
+          $( "#divSearchQueryInput" ).css("opacity", p2);
+          $( "#divSearchQueryInputDesc" ).css("opacity", p2);
+      }
+
+      function refresh_ui_buttons_panel_1(p1, p2) {
+         $( "#divButtonsPanel_1" ).css("pointer-events", p1);
+          $( "#divButtonsPanel_1" ).css("opacity", p2);
+      }
+
+      function refresh_ui_buttons_panel_2(p1, p2) {
+         $( "#divButtonsPanel_2_a" ).css("pointer-events", p1);
+         $( "#divButtonsPanel_2_a" ).css("opacity", p2);
+         $( "#divButtonsPanel_2_b" ).css("pointer-events", p1);
+         $( "#divButtonsPanel_2_b" ).css("opacity", p2);
+         
+      }
+
+      function toogleBetweenPanels(source) {
+        if(isAnyCategorySelected()){
+          var pointer_events_value_on=getPointerEventsValueOn()
+          var opacity_on=getOpacityOn()
+          var pointer_events_value_off=getPointerEventsValueOff()
+          var opacity_off=getOpacityOff()
+          if(source == 1) { //mouse over the search query textarea
+            refresh_ui_search_query_input(pointer_events_value_on, opacity_on)
+            refresh_ui_fileupload(pointer_events_value_off, opacity_off)
+            if (isTxtSearchQueryInputEmpty()) {
+              refresh_ui_buttons_panel_1(getPointerEventsValueOff(), getOpacityOff()); 
+            } else {
+              refresh_ui_buttons_panel_1(getPointerEventsValueOn(), getOpacityOn()); 
+            }
+            refresh_ui_buttons_panel_2(getPointerEventsValueOff(), getOpacityOff()); 
+          } else { //mouse over the file upload panel
+            refresh_ui_search_query_input(pointer_events_value_off, opacity_off)
+            refresh_ui_fileupload(pointer_events_value_on, opacity_on)
+            if (isFileUploadEmpty()) {
+              refresh_ui_buttons_panel_2(getPointerEventsValueOff(), getOpacityOff()); 
+            } else {
+              refresh_ui_buttons_panel_2(getPointerEventsValueOn(), getOpacityOn()); 
+            }
+            refresh_ui_buttons_panel_1(getPointerEventsValueOff(), getOpacityOff()); 
+          }
+        }
+      }
+
+      function getPointerEventsValueOn () {
+        return "auto";
+      }
+      function getPointerEventsValueOff () {
+        return "none";
+      }
+      function getOpacityOn() {
+        return "1.0"
+      }
+      function getOpacityOff() {
+        return "0.2"
+      }
+
+      $(document).ready(function() {
+        var isNotEmpt = isAnyCategorySelected()
+          if(isNotEmpt) {
+            issueAjaxCallOnSelectedCategory_and_refreshUI($( "#hidSelectedCategory" ).val(), $( "#hidSelectedCategoryNum" ).val());
+          } else {
+            refresh_ui();
+          }
+      });
+
+  </script>
+
+  <style>
+  .ui-menu { width: 300px; }
+  </style>
+  </head>
+  <body>
+  <p align="left">
+  <img src="/static/lib/bootstrap/img/category-classificator.png">
+  </p>
+  
+<ul class="nav nav-tabs">
+        <li><a href="/">Home</a></li>
+        <li class="active"><a href="upload.html">Upload Query</a></li>
+        <li><a href="about.html">About</a></li>
+    </ul>
+  
+<blockquote>This page lets you assigns a category to a set of queries (either by typing it manually or uploading from a set of files)</blockquote>
+
+  <table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+    <th>Step 1: Selects an category</th>
+    <th>Step 2: Provide any search content that will be classified into -</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td rowspan="6">
+          {% raw (categories) %}
+    </td>
+    <td width="99%">
+                <div class="module community-bulletin" style="width:90%; background-color:#F0F0F0">
+                <div class="related">
+                  <div class="bulletin-title"> Current Selected Category</div>
+                  <hr style="margin-bottom: 1px; margin-top:5px">
+                  <div class="spacer">
+                    <div class="bulletin-item-content" id="divSelectedCategoryDesc" style="font-weight: bold; "> -- 
+                    </div>
+                  </div>
+                </div>
+                </div>
+    </td>
+    </tr>
+    <tr>
+    <th>
+      <div id="divSearchQueryInputDesc">Please enter a search query</div>
+    </th>
+    </tr>
+    <tr>
+    <td>
+              <p>
+              <div onmouseover="toogleBetweenPanels(1);">
+                <div id="divSearchQueryInput">
+                <textarea cols="350" rows="3" style="width:90%" id="txtSearchQueryInput" onclick="txtSearchQueryInput_click();" onkeyup="txtSearchQueryInput_update();" onblur="txtSearchQueryInput_update();">
+                  Your search query...
+                </textarea>
+                </div>
+              </div>
+              </p>
+
+              <p align="right">
+              <div id="divButtonsPanel_1">
+              <table border="0" width="90%" class="tableButtonPanel">
+                <tr>
+                <td>
+                  <input type="button" name="butReset_1" id="butReset_1" value="Reset" onclick="butReset_click();"> 
+                </td>
+                <td>
+                  <input type="button" value="Submit Query" name="butSubmit_1" id="butSubmit_1" onclick="butSubmit_1_click();">
+                </td>
+                <td width="99%">
+                
+                  <div id="divSearchQueryResult" class="divResult" align="right"></div>
+                
+                </td>
+                </tr>
+              </table>
+              </div>
+              </p>
+    </td>
+    </tr>
+    <tr>
+    <th>
+    <div id="divFileUploadDesc">Or upload some files that contain your query</div>
+    </th>
+    </tr>
+    <tr>
+    <td>
+              <p align="left">
+              <div onmouseover="toogleBetweenPanels(2);">
+                <div id="divFileUpload" style="width:90%; border: 1px solid #e0dcbf;box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 0 #fff inset;">
+                  <iframe id="iframeFileUpload" name="iframeFileUpload" src="/static/static-pages/fileupload.html" style="width:100%; height:350px "></iframe>
+                </div>
+              </div>
+              </p>
+
+              <p align="right">
+              <div>
+              <table border="0" width="90%" class="tableButtonPanel">
+                <tr>
+                  <td>
+                    <div id="divButtonsPanel_2_a">
+                    <input type="button" name="butReset_2" id="butReset_2" value="reset" onclick="butReset_click();">
+                    </div> 
+                  </td>
+                  <td>
+                    <div id="divButtonsPanel_2_b">
+                    <input type="button" value="Submit Upload" name="butSubmit_2" id="butSubmit_2" onclick="butSubmit_2_click();">
+                    </div>
+                  </td>
+                  <td width="99%">
+                    <input type="hidden" name="hidSelectedCategory" id="hidSelectedCategory" value="">
+                    <input type="hidden" name="hidSelectedCategoryNum" id="hidSelectedCategoryNum" value="">
+                    
+                      <div id="divFileUploadResult" class="divResult" align="right"></div>
+                    
+                  </td>
+                </tr>
+              </table>
+              </div>
+              </p>
+    </td>
+  </tr>
+  </tbody>
+  </table>
+
+  </body>
+</html>

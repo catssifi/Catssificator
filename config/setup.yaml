@@ -1,0 +1,6 @@
+common:
+  #it can be either dev or prod
+  run_mode: 'prod'
+
+  #Of relative path format
+  file_upload_base_dir: 'catssificator-upload'
