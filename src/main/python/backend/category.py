@@ -24,7 +24,6 @@ from lib.loggable import Loggable
 from lib.singleton import Singleton
 from lib.config import Config
 from lib.utils import rindex, real_lines, unescape, debug
-from idlelib.ObjectBrowser import dispatch
 import string
 
 @Singleton
