@@ -79,9 +79,9 @@ class CCRequestHandler(BaseHTTPRequestHandler):
     if ticket_token and category: #If it is a request ticket submission mode
         response_str = RequestTicketSystem.Instance().submit(ticket_token, category)
     elif query and category:
-        response_str = QueryProcessor().submit(query, category, return_full_categories_if_not_found=True)
+        response_str = QueryProcessor().submit(query, category)
     elif query:
-        response_str = QueryProcessor().inquire(query)
+        response_str = QueryProcessor().inquire(query, return_full_categories_if_not_found=True)
     else:
         response_str = '{"result":"no", "message"="invalid request"}'
     self.wfile.write(response_str)
