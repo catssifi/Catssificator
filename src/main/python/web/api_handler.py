@@ -28,6 +28,11 @@ def get_full_name(arguments):
     selected_name=get_argument(arguments, 'selectedName')
     return Category.Instance().get_full_name(selected_name)
 
+def query(arguments):
+    query = get_argument(arguments, 'query')
+    response_str = QueryProcessor().inquire(query)
+    return response_str
+
 def submit_query(arguments):
     category_num = get_argument(arguments, 'categoryNum')
     query = get_argument(arguments, 'query')
@@ -48,6 +53,8 @@ class APIHandler(BaseHandler):
         response=''
         if method == 'get_full_name':
             response = get_full_name(self.request.arguments)
+        elif method == 'query': 
+            response = query(self.request.arguments)
         elif method == 'submit_query': 
             response = submit_query(self.request.arguments)
         elif method == 'submit_upload': 

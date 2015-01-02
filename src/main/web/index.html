@@ -10,9 +10,68 @@
   	<link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="/static/lib/bootstrap/js/main.js"></script>
   	<script>
-    
+          function txtSearchQueryInput_click() {
+
+            $( "#txtSearchQueryInput" ).select();
+
+            // Para Chrome's que da problema
+            $( "#txtSearchQueryInput" ).on("mouseup", function() {
+                // Unbindeamos el mouseup
+                $( "#txtSearchQueryInput" ).off("mouseup");
+                return false;
+            });
+      }
+
+      function butSubmit_1_click() {
+        var query = $("#txtSearchQueryInput").val();
+        issueAjaxCallOnSubmitQueryButtonPressed(query);
+      }
+
+      function issueAjaxCallOnSubmitQueryButtonPressed (query) {
+          $.ajax({
+            url:"/api/query", 
+            data: "query=" + encodeURIComponent(query), success:
+            function(result) {
+              var j = parseJson(result);
+              var resultMsg = getMessagesFromJson(j)
+              var cat_full_name = getValuesFromJson(j, 'category-full-name')
+              if(cat_full_name) {
+                resultMsg += '<br/>The full category is: <b>' + cat_full_name + '</b>'
+              }
+              //resultMsg=decorateWithSucessfulMessage(resultMsg)
+              displayResultMessage("#divQueryResult", resultMsg)
+            } 
+            });
+      }
+
+      function txtSearchQueryInput_update() {
+        refresh_ui()
+      }
    
+      function isTxtSearchQueryInputEmpty() {
+        var sqInput = $( "#txtSearchQueryInput" ).val();
+        return ( sqInput == '') || (sqInput.indexOf('Your search query...')>-1);
+      }
+
+      function refresh_ui_buttons_panel_1(p1, p2) {
+         $( "#divButtonsPanel_1" ).css("pointer-events", p1);
+         $( "#divButtonsPanel_1" ).css("opacity", p2);
+      }
+
+      function refresh_ui() {
+        if(!isTxtSearchQueryInputEmpty()) {
+          refresh_ui_buttons_panel_1(getPointerEventsValueOn(), getOpacityOn()); 
+        } else {  //An category has been selected
+          refresh_ui_buttons_panel_1(getPointerEventsValueOff(), getOpacityOff())
+        } 
+      }
+
+      $(document).ready(function() {
+          refresh_ui();
+      });
+
   </script>
 
   
@@ -46,8 +105,16 @@
     </tr>
     <tr>
     <td>
-                        <input type="button" value="Submit Query" name="butSubmit_1" id="butSubmit_1" onclick="butSubmit_1_click();">
+      <div id="divButtonsPanel_1">
+                        <input type="button" value="Send" name="butSubmit_1" id="butSubmit_1" onclick="butSubmit_1_click();">
+                        </div>
     </td>
+    </tr>
+    <tr>
+    <td>
+    <div id="divQueryResult"></div>
+    </td>
+    </tr>
   </tr>
   </tbody>
   </table>

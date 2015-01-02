@@ -22,7 +22,7 @@ import operator
 from request_ticket_system import RequestTicketSystem
 from backend.datastore_factory import DataStoreFactory
 from lib.loggable import Loggable
-from lib.utils import stem_all_words, dumps, debug
+from lib.utils import stem_all_words, dumps, debug, extract_head_tail
 from backend.category import Category
 
 STOP_WORDS=[u'i', u'me', u'my', u'myself', u'we', u'our', u'ours', u'ourselves', u'you', u'your', u'yours', u'yourself', u'yourselves', u'he', u'him', u'his', u'himself', u'she', u'her', u'hers', u'herself', u'it', u'its', u'itself', u'they', u'them', u'their', u'theirs', u'themselves', u'what', u'which', u'who', u'whom', u'this', u'that', u'these', u'those', u'am', u'is', u'are', u'was', u'were', u'be', u'been', u'being', u'have', u'has', u'had', u'having', u'do', u'does', u'did', u'doing', u'a', u'an', u'the', u'and', u'but', u'if', u'or', u'because', u'as', u'until', u'while', u'of', u'at', u'by', u'for', u'with', u'about', u'against', u'between', u'into', u'through', u'during', u'before', u'after', u'above', u'below', u'to', u'from', u'up', u'down', u'in', u'out', u'on', u'off', u'over', u'under', u'again', u'further', u'then', u'once', u'here', u'there', u'when', u'where', u'why', u'how', u'all', u'any', u'both', u'each', u'few', u'more', u'most', u'other', u'some', u'such', u'no', u'nor', u'not', u'only', u'own', u'same', u'so', u'than', u'too', u'very', u's', u't', u'can', u'will', u'just', u'don', u'should', u'now']
@@ -37,7 +37,7 @@ class QueryProcessor(Loggable):
         else:
             self._datastore=DataStoreFactory.factory()
     
-    def inquire(self, query):
+    def inquire(self, query, return_full_categories_if_not_found=False):
         words = self.process_query(query);
         category_score = {}
         for word in words:
@@ -53,12 +53,17 @@ class QueryProcessor(Loggable):
         if category_score :
             category_num, value = max(category_score.iteritems(), key=operator.itemgetter(1))
             category_name = Category.Instance().get_name(category_num)
-            response_str = dumps({"result":"yes", "category":category_name})
+            category_full_name = Category.Instance().get_full_name(category_num)
+            message = 'The query \'<b>%s</b>\' most likely belongs to: \'<b>%s</b>\'' %(extract_head_tail(query), category_name)
+            response_str = dumps({"result":"yes", "category":category_name, "category-full-name": category_full_name, "message": message})
         else:
-            ticket_token=RequestTicketSystem.Instance().generate_category_ticket(words)
-            message='Unfortunately, no category was found under the search query:%s ...Please pick a category it should belong to: ' % (query)
-            message+=Category.Instance().get_categories_desc()
-            response_str = dumps({"result":"no", "message":message, "ticket-token":ticket_token})
+            message='Unfortunately, no category was found under the search query:%s ...' % (query)
+            if return_full_categories_if_not_found:
+                ticket_token=RequestTicketSystem.Instance().generate_category_ticket(words)
+                message+='Please pick a category it should belong to: ' + Category.Instance().get_categories_desc()
+                response_str = dumps({"result":"no", "message":message, "ticket-token":ticket_token})
+            else:
+                response_str = dumps({"result":"no", "message":message})
         return response_str
     
     # parameter: category can be category number or category name

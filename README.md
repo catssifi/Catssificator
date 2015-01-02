@@ -5,25 +5,35 @@
 
 This software implements an A.I. system with advanced machine learning techniques that reads any given input and determines what category(ies) it should belong to based on what it has learned previously.  In a novel way, it implements the Natural language processing on a machine-learning way.
 
-####Dependencies
-There are few dependencies that are needed to be installed/configured first in order to run the program:
-<ol>
-<li><b>Mac/Linux environments:</b> Currently, the out of the box configuration can be run on any Mac or linux machines.  For window machines, at least python and bash scripts are required.</li>
-<li><b>Python 2.x</b>: It is fully tested in python 2.x environments.  For python 3.x, i am really not sure yet.</li>
-<li><b>PyStemmer</b>: The system uses this library to do the word stemmings.  For example, if the input word is 'ate', it will be reduced to 'eat', the stemmed form of a word.  To install it, please refer to <a href=doc/pystemmer.md target=_blank>this documentation</a>.</li>
-<li><b>Torando</b>:  We use Torando (in which Facebook, Quora, FriendFeed..etc have been using as their production web servers) for its scalable and non-blocking web server capabilities on our interactive web UI need.   To install it, please refer to <a href=doc/torando.md target=_blank>this documentation</a>.</li>
-<li><b>PyYAML</b>: It is for parsing the internal configurations.  Please refer <a href="http://pyyaml.org/wiki/PyYAML">here</a> for download and <a href="http://pyyaml.org/wiki/PyYAMLDocumentation" target="_blank">here</a> for installation.</li>
-</ol>
+###Supported platforms/environments
+As of today, this software has been developed/tested in Mac/Linux platform and the fully-supported web-browser is FireFox (For chrome, i suppose it should be 100% fully compatible as well).  The python 2.x is required to be installed. 
+
+###How to install
+Please run the following command:
+<pre>
+$ sudo ./install.sh
+</pre>
+
+It will automatically install all required <a href=doc/dependencies.md target=_blank>dependencies</a> into your local machine.  
 
 ###How to run
-To start with, the system is configured with 20 pre-defined categories.  you can always change it at config/category.txt 
-
 First run the A.I. server as (and let it run in the background and do not stop it):
 <pre>
 $ ./start_server.sh
 </pre>
 
-Then in another terminal, run an inquire query, say "Android cell phone latest price" as:
+Then, there are basically two ways to interact with the A.I. server, 
+
+####1) Browser mode:
+
+Open a browser and enter: http://127.0.0.1:9798/ in the address bar and you will be brought to the contents management console page as follow:
+
+<img src="doc/screenshot-web-1.png"/>
+
+You can ask any query or upload your queries to the A.I. server.  More information can be referred to <a href="doc/web.md" target="_blank">here</a>.
+
+####2) Terminal mode:
+Open an another terminal, run an inquire query, say "Android cell phone latest price" as:
 <pre>
 $ <b>./query.sh "Android cell phone latest price"</b>
 Unfortunately, no category was found under the search query:Android cell phone latest price ...Please pick a category it should belong to:
@@ -44,6 +54,8 @@ Notice that when you issue an inquiry to the system and, if the system does not 
 $ ./query.sh "where to buy phone"
 Mobile_Devices
 </pre>
+
+The system is configured with 6000 categories.  you can always change it at config/category.txt 
 
 #####Advanced capabilities
 There are also advanced capabilities, as of today, <a href="doc/usage.md#words-stemming" target=_blank>words stemming</a>, included in the system.  Please refer to the <a href="doc/usage.md" target=_blank>useage document</a> for more information.

@@ -9,6 +9,7 @@
   	<link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <script src="/static/lib/bootstrap/js/main.js"></script>
   	<script>
       $(function() {
         $( "#category_menu" ).menu();
@@ -41,22 +42,6 @@
               $("#hidSelectedCategoryNum")[0].value = selectedCatNum
               refresh_ui();
             }});
-      }
-
-      function parseJson(j) {
-        return jQuery.parseJSON(j);
-      }
-
-      function getMessagesFromJson(j) {
-        if (j.length) {
-          var resultMsgs=""
-          for(i=0; i<j.length; i++){
-            resultMsgs+=j[i].message+'<br/>'
-          }
-          return resultMsgs
-        } else {
-          return j.message
-        }
       }
 
       function decorateWithHeader(rawMsg, headerSize) {
@@ -97,10 +82,6 @@
               $( '#iframeFileUpload' ).attr( 'src', function ( i, val ) { return val; });
             } 
             });
-      }
-
-      function displayResultMessage(whichUI, msg) {
-        $(whichUI).html(msg)
       }
 
       function txtSearchQueryInput_click() {
@@ -260,19 +241,6 @@
             refresh_ui_buttons_panel_1(getPointerEventsValueOff(), getOpacityOff()); 
           }
         }
-      }
-
-      function getPointerEventsValueOn () {
-        return "auto";
-      }
-      function getPointerEventsValueOff () {
-        return "none";
-      }
-      function getOpacityOn() {
-        return "1.0"
-      }
-      function getOpacityOff() {
-        return "0.2"
       }
 
       $(document).ready(function() {

@@ -166,6 +166,12 @@ def rindex(str, s):
     except:
         return str       
 
+def extract_head_tail(str, n=10, max_intact=50):
+    if len(str) < max_intact or n > len(str)/2:
+        return str
+    else:
+        return str[0:n]+'..........'+str[len(str)-n:len(str)]
+
 def unescape(s):
     s = convert_to_str(s)
     s = s.replace("%20", " ")

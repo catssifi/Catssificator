@@ -2,6 +2,8 @@ $(function () {
     'use strict';
 
     // Initialize the jQuery File Upload widget:
+    if($('#fileupload').length>0) {
+
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
@@ -19,6 +21,7 @@ $(function () {
     );
 
   $('#fileupload').fileupload('option', {
+    
                               url: '/fileupload',
                               // Enable image resizing, except for Android and Opera,
                               // which actually support image resizing, but fail to
@@ -28,8 +31,7 @@ $(function () {
                               maxFileSize: 5000000,
                               acceptFileTypes: /(\.|\/)(txt|dat?a|xml|csv)$/i
                               });
-
-        // Load existing files:
+          // Load existing files:
         $('#fileupload').addClass('fileupload-processing');
         $.ajax({
             // Uncomment the following to send cross-domain cookies:
@@ -45,4 +47,51 @@ $(function () {
         });
   
 
+  } //end if
 });
+
+function parseJson(j) {
+  return jQuery.parseJSON(j);
+}
+
+function getMessagesFromJson(j) {
+  if (j.length) {
+    var resultMsgs=""
+    for(i=0; i<j.length; i++){
+      resultMsgs+=j[i].message+'<br/>'
+    }
+    return resultMsgs
+  } else {
+    return j.message
+  }
+}
+
+function getValuesFromJson (j, fieldName) {
+  if (j.length) {
+    var resultMsgs=""
+    for(i=0; i<j.length; i++){
+      resultMsgs+=j[i][fieldName]+'<br/>'
+    }
+    return resultMsgs
+  } else {
+    return j[fieldName]
+  }
+}
+
+function displayResultMessage(whichUI, msg) {
+  $(whichUI).html(msg)
+}
+
+function getPointerEventsValueOn () {
+  return "auto";
+}
+function getPointerEventsValueOff () {
+  return "none";
+}
+function getOpacityOn() {
+  return "1.0"
+}
+function getOpacityOff() {
+  return "0.2"
+}
+
