@@ -6,3 +6,8 @@ common:
   file_upload_base_dir: 'catssificator-upload'
 
   ui_server_port: '80'
+
+db:
+
+  #This is the sql database location
+  location: 'database.db'

@@ -181,4 +181,15 @@ def unescape(s):
     s = s.replace("&amp;", "&")
     return s
 
+##SQL util stuffs #############################################
+#cols must be a type of list
+def columnize_in_sql_way(cols):
+    if cols:
+        if is_string(cols):
+            return cols
+        else:
+            return reduce(lambda x,y: str(x)+','+str(y), cols)
+    else:
+        return '*'
+
 log = get_logger("Utils") 

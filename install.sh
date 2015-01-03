@@ -32,6 +32,11 @@ tar xvf PyYAML-3.11.tar.gz
 cd PyYAML-3.11
 python setup.py install
 cd ..
+wget https://pypi.python.org/packages/source/S/SQLAlchemy/SQLAlchemy-0.9.8.tar.gz
+tar xvf SQLAlchemy-0.9.8.tar.gz
+cd SQLAlchemy-0.9.8
+python setup.py install
+cd ..
 cd ..
 rm -rf "$install_dir"
 pip install tornado

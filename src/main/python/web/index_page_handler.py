@@ -42,5 +42,6 @@ class UploadPageHandler(BaseHandler):
 class AboutPageHandler(BaseHandler):
     def get(self):
         #self.write("Hello, world")
+        #debug()
         _category_menu_in_html = UIBuilder.Instance().get_category_menu()
         self.render("about.html")

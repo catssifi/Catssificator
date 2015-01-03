@@ -70,8 +70,11 @@ class QueryProcessorTest(unittest.TestCase):
         
     
     def test_submit(self):
-        query_submit='Amazon kindle sales'
+        query_submit='Amazon kindle good sales'
         category='Technology'
+        self._qp.submit(query_submit, category)
+        query_submit='Is Thailand good'
+        category='Travel'
         self._qp.submit(query_submit, category)
         
         query='is amazon good'

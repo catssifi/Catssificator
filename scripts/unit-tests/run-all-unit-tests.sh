@@ -1,2 +1,2 @@
 cd ../../src/test/python
-nosetests
+nosetests main_test.py
