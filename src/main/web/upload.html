@@ -55,15 +55,22 @@
         return htmlMsg
       }
 
-      function issueAjaxCallOnSubmitQueryButtonPressed (selectedCatNum, query) {
+      function issueAjaxCallOnSubmitQueryButtonPressed (selectedCatNum, query, token) {
           $.ajax({
             url:"/api/submit_query", 
-            data: "categoryNum=" + selectedCatNum + "&query=" + encodeURIComponent(query), success:
+            data: "categoryNum=" + selectedCatNum + "&query=" + encodeURIComponent(query) + "&token="+token, success:
             function(result) {
               j = parseJson(result);
               resultMsg = getMessagesFromJson(j)
+              {% if token %}
+                resultMsg += '<br/>You can click <a href="/">here</a> to go back'
+              {% end %}
               resultMsg=decorateWithSucessfulMessage(resultMsg)
               displayResultMessage("#divSearchQueryResult", resultMsg)
+
+              //Reset the gui
+              setTxtSearchQueryInputToEmpty()
+              refresh_ui_buttons_panel_1(getPointerEventsValueOff(), getOpacityOff())
             } 
             });
       }
@@ -115,7 +122,8 @@
       function butSubmit_1_click() {
         var selectedCatNum = $("#hidSelectedCategoryNum").val();
         var query = $("#txtSearchQueryInput").val();
-        issueAjaxCallOnSubmitQueryButtonPressed(selectedCatNum, query);
+        var token = $("#hidToken").val();
+        issueAjaxCallOnSubmitQueryButtonPressed(selectedCatNum, query, token);
       }
 
       function butSubmit_2_click() {
@@ -180,6 +188,10 @@
         } else {  //An category has been selected
           refresh_ui_search_query_input(pointer_events_value, opacity);
 
+          if (!isTxtSearchQueryInputEmpty()) {
+            refresh_ui_buttons_panel_1(getPointerEventsValueOn(), getOpacityOn())  
+          }
+
           //Turns off the fileupload menu
           refresh_ui_fileupload(getPointerEventsValueOff(), getOpacityOff())
           refresh_ui_buttons_panel_2(getPointerEventsValueOff(), getOpacityOff())
@@ -204,8 +216,10 @@
       }
 
       function refresh_ui_buttons_panel_1(p1, p2) {
-         $( "#divButtonsPanel_1" ).css("pointer-events", p1);
-          $( "#divButtonsPanel_1" ).css("opacity", p2);
+         $( "#divButtonsPanel_1a" ).css("pointer-events", p1);
+          $( "#divButtonsPanel_1a" ).css("opacity", p2);
+          $( "#divButtonsPanel_1b" ).css("pointer-events", p1);
+          $( "#divButtonsPanel_1b" ).css("opacity", p2);
       }
 
       function refresh_ui_buttons_panel_2(p1, p2) {
@@ -217,6 +231,8 @@
       }
 
       function toogleBetweenPanels(source) {
+        {% if not token %}
+        //Do it only if no token is specified (free selection mode)
         if(isAnyCategorySelected()){
           var pointer_events_value_on=getPointerEventsValueOn()
           var opacity_on=getOpacityOn()
@@ -242,6 +258,7 @@
             refresh_ui_buttons_panel_1(getPointerEventsValueOff(), getOpacityOff()); 
           }
         }
+        {% end %}
       }
 
       $(document).ready(function() {
@@ -260,6 +277,7 @@
   </style>
   </head>
   <body>
+  <div id="divMainFrame" class="divMainFrame">
   <p align="left">
   <img src="/static/lib/bootstrap/img/category-classificator.png">
   </p>
@@ -308,21 +326,25 @@
               <div onmouseover="toogleBetweenPanels(1);">
                 <div id="divSearchQueryInput">
                 <textarea cols="350" rows="3" style="width:90%" id="txtSearchQueryInput" onclick="txtSearchQueryInput_click();" onkeyup="txtSearchQueryInput_update();" onblur="txtSearchQueryInput_update();">
-                  Your search query...
-                </textarea>
+                {% if query %}{% raw (query)%}
+                  {% else %}Your search query...{% end %}</textarea>
                 </div>
               </div>
               </p>
 
               <p align="right">
-              <div id="divButtonsPanel_1">
+              
               <table border="0" width="90%" class="tableButtonPanel">
                 <tr>
                 <td>
+                <div id="divButtonsPanel_1a">
                   <input type="button" name="butReset_1" id="butReset_1" value="Reset" onclick="butReset_click();"> 
+                  </div>
                 </td>
                 <td>
+                <div id="divButtonsPanel_1b">
                   <input type="button" value="Submit Query" name="butSubmit_1" id="butSubmit_1" onclick="butSubmit_1_click();">
+                  </div>
                 </td>
                 <td width="99%">
                 
@@ -331,7 +353,7 @@
                 </td>
                 </tr>
               </table>
-              </div>
+              
               </p>
     </td>
     </tr>
@@ -367,6 +389,7 @@
                   <td width="99%">
                     <input type="hidden" name="hidSelectedCategory" id="hidSelectedCategory" value="">
                     <input type="hidden" name="hidSelectedCategoryNum" id="hidSelectedCategoryNum" value="">
+                    <input type="hidden" name="hidToken" id="hidToken" value="{% if token %}{% raw (token)%}{% end %}">
                     
                       <div id="divFileUploadResult" class="divResult" align="right"></div>
                     
@@ -379,6 +402,6 @@
   </tr>
   </tbody>
   </table>
-
+</div>
   </body>
 </html>

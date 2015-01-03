@@ -30,15 +30,22 @@
       }
 
       function issueAjaxCallOnSubmitQueryButtonPressed (query) {
+        var encodedQuery = encodeURIComponent(query);
           $.ajax({
             url:"/api/query", 
-            data: "query=" + encodeURIComponent(query), success:
+            data: "query=" + encodedQuery, success:
             function(result) {
               var j = parseJson(result);
               var resultMsg = getMessagesFromJson(j)
               var cat_full_name = getValuesFromJson(j, 'category-full-name')
-              if(cat_full_name) {
-                resultMsg += '<br/>The full category is: <b>' + cat_full_name + '</b>'
+              var result= getValuesFromJson(j, 'result')
+              if (result=='no') {
+                var token = getValuesFromJson(j, 'ticket-token')
+                resultMsg += '<br/>However, it is recommened that you can suggest a category to it by <a href="upload.html?token='+token+'">clicking here</a>.'
+              } else {
+                if(cat_full_name) {
+                  resultMsg += '<br/>The full category is: <b>' + cat_full_name + '</b>'
+                }
               }
               //resultMsg=decorateWithSucessfulMessage(resultMsg)
               displayResultMessage("#divQueryResult", resultMsg)
@@ -77,6 +84,7 @@
   
   </head>
   <body>
+  <div id="divMainFrame" class="divMainFrame">
   <p align="left">
   <img src="/static/lib/bootstrap/img/category-classificator.png">
   </p>
@@ -87,7 +95,7 @@
         <li><a href="about.html">About</a></li>
     </ul>
 
-<blockquote><h3>Welcome to Catssificator - beta version.<br/>It is an machine learning engine that predicts what categor(ies) that a given search query should belong to based on previous knowledges. </h3> </blockquote>
+<blockquote><h2 class="mainTitle">Welcome to Catssificator - beta version.<br/>It is an machine learning engine that predicts what categor(ies) that a given search query should belong to based on previous knowledges. </h2> </blockquote>
   
   <table class="table table-striped table-bordered">
     <thead>
@@ -98,7 +106,7 @@
   <tbody>
   <tr>
     <td>
-          <textarea cols="350" rows="3" style="width:800px" id="txtSearchQueryInput" onclick="txtSearchQueryInput_click();" onkeyup="txtSearchQueryInput_update();" onblur="txtSearchQueryInput_update();">
+          <textarea cols="350" rows="3" style="width:90%" id="txtSearchQueryInput" onclick="txtSearchQueryInput_click();" onkeyup="txtSearchQueryInput_update();" onblur="txtSearchQueryInput_update();">
                   Your search query...
                 </textarea>
     </td>
@@ -121,7 +129,7 @@
 
 
           
-                    
+          </div>          
         
 
   </body>

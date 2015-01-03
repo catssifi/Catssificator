@@ -26,7 +26,11 @@ from lib.utils import get_logger, unescape, debug
 
 #arguments is a dict object
 def get_argument(arguments, name):
-    return unescape(arguments[name][0])
+    if name in arguments:
+        v=arguments[name][0]
+        if v and len(v)>0:
+            return unescape(v)
+    return None
     
 class BaseHandler(tornado.web.RequestHandler):
     

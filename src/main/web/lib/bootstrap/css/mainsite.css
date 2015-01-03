@@ -1,15 +1,25 @@
-body {
-    color: #262626;
+body, table, tr, td, div {
+    color: #666666;
     cursor: default;
-    font-family: "Helvetica Neue","Helvetica",Helvetica,Arial,sans-serif;
+    font-family: "PT Serif",serif;
     font-style: normal;
-    font-weight: 400;
-    line-height: 1;
+    line-height: 22px;
+    font-size: 16px;
+}
+
+.mainTitle {
+    font-size: 22px;
+    color: #111111;
+    font-weight: bold;
 }
 
 .ui-widget {
 	font-family: "Helvetica Neue","Helvetica",Helvetica,Arial,sans-serif;
     font-size: 1.1em;
+}
+
+div.divMainFrame{
+	width: 90%;
 }
 
 div.divResult_good{

@@ -34,17 +34,8 @@ class UIBuilder():
         
     def get_category_menu(self):
         return self._category_menu_in_html
-        
-_dic_sub_categories = {}
-_category_menu = None
 
-def build_category_menu(category_num=None, refresh=False):
-    
-    global _category_menu
-    global _dic_sub_categories
-    
-    if _category_menu and not refresh:
-        return _category_menu
+def build_category_menu(category_num=None):
     
     categories=None
     str=''
@@ -61,11 +52,7 @@ def build_category_menu(category_num=None, refresh=False):
     sub_categories = None
     for category in categories:
         if Category.Instance().is_this_category_num_parent(category[0]):
-            if category[0] not in _dic_sub_categories:
-                sub_categories=build_category_menu(category[0])
-                _dic_sub_categories[category[0]] = sub_categories
-            else:
-                sub_categories=_dic_sub_categories[category[0]]
+            sub_categories=build_category_menu(category[0])
             #if sub_categories:
             str+=('<li select-able="false" cat-num="%s">'+category[1])%(category[0])
             str+=sub_categories
@@ -74,5 +61,5 @@ def build_category_menu(category_num=None, refresh=False):
         str+='</li>'
     str+='</ul>'
     
-    _category_menu = str
+    #_category_menu = str
     return str

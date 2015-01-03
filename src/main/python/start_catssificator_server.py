@@ -26,6 +26,7 @@ import tornado.ioloop
 import tornado.web
 import thread
 import time
+import threading, datetime
 from threading import Thread
 from query_processor import QueryProcessor
 from request_ticket_system import RequestTicketSystem
@@ -115,7 +116,7 @@ def start_UI_server():
         application.listen(new_retry_port)
         log.info('Catssificator web management console has successfully started at: http://127.0.0.1:%s' % (new_retry_port))
     tornado.ioloop.IOLoop.instance().start() 
-
+    
 if __name__ == '__main__':
   try:
     t1 = thread.start_new_thread( start_RESTFul_server, ())
@@ -123,9 +124,11 @@ if __name__ == '__main__':
         t2 = thread.start_new_thread( start_UI_server, ())
     else:
         log.info('Catssificator is running as dev (console) mode only.')
+    
     log = get_logger('Main')
     while 1:
-        time.sleep(10)
+        RequestTicketSystem.Instance().clean_up() 
+        time.sleep(60*60)   #come back in 1 hour
         
   except KeyboardInterrupt:
     print '^C received, shutting down the web servers'

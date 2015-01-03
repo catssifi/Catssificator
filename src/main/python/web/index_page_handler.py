@@ -17,8 +17,10 @@
 #
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
+from lib.utils import debug
 from web.uibuilder import UIBuilder
-from web.base_handler import BaseHandler
+from web.base_handler import BaseHandler, get_argument
+from request_ticket_system import RequestTicketSystem
 
 class HomePageHandler(BaseHandler):
     def get(self):
@@ -29,8 +31,13 @@ class HomePageHandler(BaseHandler):
 class UploadPageHandler(BaseHandler):
     def get(self):
         #self.write("Hello, world")
+        #debug()
         _category_menu_in_html = UIBuilder.Instance().get_category_menu()
-        self.render("upload.html", categories=_category_menu_in_html)
+        _token=get_argument(self.request.arguments, 'token')
+        _query=None
+        if _token:
+            _query=RequestTicketSystem.Instance().get_query(_token)
+        self.render("upload.html", categories=_category_menu_in_html, token=_token, query=_query)
         
 class AboutPageHandler(BaseHandler):
     def get(self):

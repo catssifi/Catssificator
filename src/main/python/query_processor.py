@@ -58,16 +58,14 @@ class QueryProcessor(Loggable):
             response_str = dumps({"result":"yes", "category":category_name, "category-full-name": category_full_name, "message": message})
         else:
             message='Unfortunately, no category was found under the search query:%s ...' % (query)
+            ticket_token=RequestTicketSystem.Instance().generate_category_ticket(query, words)
             if return_full_categories_if_not_found:
-                ticket_token=RequestTicketSystem.Instance().generate_category_ticket(words)
                 message+='Please pick a category it should belong to: ' + Category.Instance().get_categories_desc()
-                response_str = dumps({"result":"no", "message":message, "ticket-token":ticket_token})
-            else:
-                response_str = dumps({"result":"no", "message":message})
+            response_str = dumps({"result":"no", "message":message, "ticket-token":ticket_token})
         return response_str
     
     # parameter: category can be category number or category name
-    def submit(self, query, category, dumps_it=True):
+    def submit(self, query, category, dumps_it=True, token=None):
         if not category.isdigit():
             category_num = Category.Instance().get_num(category)
         else:
@@ -85,6 +83,8 @@ class QueryProcessor(Loggable):
             response_str = {"result":"yes", "message":"query: \'%s\' has been processed!"% (extract_head_tail(query))}
             if dumps_it:
                 response_str = dumps(response_str)
+            #also clean up this token:
+            RequestTicketSystem.Instance().remove(token)
         return response_str
     
     def submit_in_chunk(self, queries, category_num):

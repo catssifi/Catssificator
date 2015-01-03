@@ -19,6 +19,7 @@
 # Date: 2014 Dec - 2015
 
 import sys
+from lib.utils import debug
 from os.path import abspath, join, dirname
 sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/'))
 from request_ticket_system import RequestTicketSystem
@@ -32,5 +33,13 @@ class RequestTicketSystemTest(unittest.TestCase):
         pass
     
     def test_1(self):
-        ticket=self._rts.generate_category_ticket(['iphone'])
-        self.assertNotEqual(ticket, None)
+        self._rts.clean_up()
+        ticket_1=self._rts.generate_category_ticket('iphone', ['iphone'])
+        ticket_2=self._rts.generate_category_ticket('android', ['android'])
+        ticket_2=self._rts.generate_category_ticket('ipad', ['ipad'])
+        size = self._rts.size()
+        self.assertEqual(size, 3)
+        self._rts.clean_up()
+        size = self._rts.size()
+        self.assertEqual(size, 0)
+        

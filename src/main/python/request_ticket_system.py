@@ -20,33 +20,79 @@
 
 import threading
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
+from collections import OrderedDict
 from lib.loggable import Loggable
 from lib.singleton import Singleton
-from lib.utils import generate_token
+from lib.utils import generate_token, debug
 from backend.datastore_factory import DataStoreFactory
 
 @Singleton
 class RequestTicketSystem(Loggable):
 
     _lock = threading.RLock()
-    _tickets={}
+    _tickets=OrderedDict()
     _token_len = 40
+    
+    _num_of_items_to_clean_each_loop = 50
+    _seconds_backward=3*60*60   #3 hours
     
     def __init__(self):
         self._datastore=DataStoreFactory.factory()
     
     def submit(self, ticket_token, category_num):
-        (words, time_ticket_created) = (None, None)
+        (query, words, time_ticket_created) = (None, None, None)
         with self._lock:
-            (words, time_ticket_created) = self._tickets[ticket_token]
+            (query, words, time_ticket_created) = self._tickets[ticket_token]
             del self._tickets[ticket_token]
         if words and len(words)>0:
             for word in words:
                 self._datastore.store(word, category_num)
     
-    def generate_category_ticket(self, words):
+    def generate_category_ticket(self, query, words):
         ticket_token= generate_token(self._token_len)
         with self._lock:
-            self._tickets[ticket_token] = (words, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            self._tickets[ticket_token] = (query, words, datetime.now())
         return ticket_token
+    
+    def get_query(self, token):
+        (query, words, time_ticket_created) = (None, None, None)
+        with self._lock:
+            if token in self._tickets:
+                (query, words, time_ticket_created) = self._tickets[token]
+        return query
+    
+    def get_words(self, token):
+        (query, words, time_ticket_created) = (None, None, None)
+        with self._lock:
+            (query, words, time_ticket_created) = self._tickets[token]
+        return words
+    
+    def remove(self, token):
+        with self._lock:
+            if token in self._tickets:
+                del self._tickets[ticket_token]
+    
+    def set_seconds_backward_for_clean_up(self, sec):
+        self._seconds_backward = sec
+    
+    def size(self):
+        return len(self._tickets)
+    
+    def clean_up(self):
+        start_time=datetime.now()
+        clean_time_up_to = start_time - timedelta(seconds=self._seconds_backward)
+        deleted=0
+        #debug()
+        with self._lock:
+            for k, v in self._tickets.items():
+                that_time = v[2]
+                if clean_time_up_to > that_time or deleted>self._num_of_items_to_clean_each_loop:
+                    break
+                else:
+                    del self._tickets[k]
+                    deleted+=1
+        end_time=datetime.now()
+        time_taken_str = str(end_time-start_time)
+        current_size=self.size()
+        self.info("Removed %s tokens in %s seconds ( %s tokens remained)"%(deleted,time_taken_str, current_size))

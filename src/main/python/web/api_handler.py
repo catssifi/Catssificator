@@ -36,7 +36,8 @@ def query(arguments):
 def submit_query(arguments):
     category_num = get_argument(arguments, 'categoryNum')
     query = get_argument(arguments, 'query')
-    response_str = QueryProcessor().submit(query, category_num)
+    token = get_argument(arguments, 'token')
+    response_str = QueryProcessor().submit(query, category_num, token)
     return response_str
 
 def submit_upload(arguments):
