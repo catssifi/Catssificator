@@ -51,12 +51,15 @@ def submit_upload(arguments):
     return response_str
 
 def report_past_queries(arguments):
-    #draw = get_argument(arguments, 'draw')
+    _draw = get_argument(arguments, 'draw')
     length = get_argument(arguments, 'length')
     _offset=int(get_argument(arguments, 'start')[0])
     _offset=convert_draw_to_offset(_offset, length)
-    response_str = PastQueryReport(limit=length, offset=_offset).generate_report()
+    _ordered_column_index = int(get_argument(arguments, 'order[0][column]')[0])
+    _ordered_direction = get_argument(arguments, 'order[0][dir]')
     #debug()
+    response_str = PastQueryReport(limit=length, offset=_offset, draw=_draw, 
+                                   ordered_column_index=_ordered_column_index, ordered_direction=_ordered_direction).generate_report()
     return response_str
 
 class APIHandler(BaseHandler):

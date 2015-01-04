@@ -15,4 +15,4 @@ before_script:
   - cd ..
 
 # command to run tests
-script: nosetests src/test/python/main_test.py
+script: nosetests main_test.py -w src/test/python/

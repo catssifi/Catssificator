@@ -22,7 +22,7 @@ import threading
 from lib.config import Config
 from lib.loggable import Loggable
 from lib.singleton import Singleton
-from lib.utils import debug, columnize_in_sql_way
+from lib.utils import debug, columnize_in_sql_way, build_ordered_by_sql_clause
 
 import sqlite3
 from sqlalchemy import *
@@ -64,7 +64,12 @@ class SQLDatabase(Loggable):
 		sql = '''INSERT INTO %s (query, from_who, create_date, categories) VALUES("%s", "%s", datetime('NOW'), "%s")
 				'''         %(DB_Constants.tbl_Query_Map, query, from_who, categories_str)
 		self.execute(sql)
-		pass
+		
+	def insert_into_category(self, category_num, category):
+		sql = ''' INSERT INTO %s (%s, %s) VALUES (%s, "%s")
+				''' %(DB_Constants.tbl_Category, DB_Constants.tbl_Category_col_category_num, DB_Constants.tbl_Category_col_category,
+					category_num, category)
+		self.execute(sql)
 
 	def get_connection(self):
 		return sqlite3.connect(self._db_location)
@@ -77,14 +82,27 @@ class SQLDatabase(Loggable):
 		results = self.execute(sql, return_results=True)
 		return results[0][0]
 
-
-	def select_query_map(self, cols=None, id=None, limit=10, offset=0):
+	def select_category(self, category_num=None, category=None):
+		cols_str=columnize_in_sql_way([DB_Constants.tbl_Category_col_category_num, DB_Constants.tbl_Category_col_category])
+		_where_clause_sql=''
+		if category_num or category:
+			_where_clause_sql = 'where 1>0'
+			if category_num:
+				_where_clause_sql += ' and %s = %s' % (DB_Constants.tbl_Category_col_category_num, category_num)
+			if category:
+				_where_clause_sql += ' and %s = "%s"' % (DB_Constants.tbl_Category_col_category, category)
+		return self._select_table(DB_Constants.tbl_Category, cols_str, id=None, where_clause_sql=_where_clause_sql)
+		
+	def select_query_map(self, cols=None, id=None, limit=10, offset=0, ordered_column_index=0, ordered_direction=''):
 		cols_str=columnize_in_sql_way(cols)
-		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, id, limit, offset)
+		ordered_column=cols[ordered_column_index]
+		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, id, limit, offset, ordered_column, ordered_direction, where_clause_sql='')
 
-	def _select_table(self, table_name, cols_str, id=None, limit=10, offset=0):
-		sql = '''select %s        from %s LIMIT %s OFFSET %s 
-				''' %(  cols_str, table_name,   limit,    offset) 
+	def _select_table(self, table_name, cols_str, id=None, limit=10, offset=0, ordered_column='', ordered_direction='', where_clause_sql=''):
+		ordered_by_sql_clause=build_ordered_by_sql_clause(ordered_column, ordered_direction)
+		sql = '''select %s        from %s %s %s LIMIT %s OFFSET %s 
+		''' %(  cols_str, table_name, where_clause_sql, ordered_by_sql_clause,  limit,    offset)
+		#debug() 
 		results = self.execute(sql, return_results=True)
 		return results
 

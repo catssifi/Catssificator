@@ -17,6 +17,13 @@
           $('#example').dataTable( {
               "processing": true,
               "serverSide": true,
+              "columnDefs": [
+                  {
+                      "targets": [ 0 ],
+                      "visible": false,
+                      "searchable": false
+                  }
+              ], 
               "ajax": "/api/report_past_queries"
               
           } );
@@ -74,14 +81,17 @@
 
     </td>
     </tr>
+
+    <!--
     <tr>
     <th></th>
     </tr>
     <tr>
-    <td>
-      
+    <td>  
     </td>
-    </tr>    
+    </tr>
+    !-->
+
   </tr>
   </tbody>
   </table>

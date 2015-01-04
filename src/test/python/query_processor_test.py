@@ -25,8 +25,8 @@ from backend.file_datastore import *
 from backend.datastore import *
 from lib.utils import *
 from query_processor import QueryProcessor 
-from backend.category import Category
-from backend.database import SQLDatabase
+from backend.category import Category, replace_category_num_with_name
+from backend.database import SQLDatabase,DB_Constants
 import unittest
 
 class QueryProcessorTest(unittest.TestCase):
@@ -76,12 +76,20 @@ class QueryProcessorTest(unittest.TestCase):
         query_submit='Amazon kindle good sales'
         category='Technology'
         self._qp.submit(query_submit, category, from_who='localhost')
-        result = SQLDatabase.Instance().select_query_map(cols=['query'])
+        result = SQLDatabase.Instance().select_query_map(cols=[DB_Constants.tbl_Query_Map_col_query])
         self.assertEqual(len(result), 1)
     
         query_submit='Is Thailand good'
         category='Travel'
         self._qp.submit(query_submit, category, from_who='localhost')
+        result = SQLDatabase.Instance().select_query_map(cols=[DB_Constants.tbl_Query_Map_col_query,DB_Constants.tbl_Query_Map_col_categories])
+        self.assertEqual(len(result), 2)
+    
+        #Now try to replace the category_number to category_name
+        cat_name_index=1
+        new_result_after_replacing_cat_num_with_cat_name=replace_category_num_with_name(result, cat_name_index)
+        self.assertEqual(new_result_after_replacing_cat_num_with_cat_name[1][cat_name_index],'Travel')
+        
         
         query='is amazon good'
         ans=self._qp.inquire(query)
@@ -105,4 +113,5 @@ class QueryProcessorTest(unittest.TestCase):
         ans=self._qp.inquire(query)
         self.assertEqual(get_json_value(ans, 'category'), 'Hardware')   #should find it as Hardware since repairment is same as repair after being stemmed
             
-        
+    def tearDown(self):
+        self._category.set_path(join(abspath(dirname('__file__')), '../../../config/test/')+'test-category-production.txt')

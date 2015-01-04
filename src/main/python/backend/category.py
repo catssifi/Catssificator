@@ -24,6 +24,7 @@ from lib.loggable import Loggable
 from lib.singleton import Singleton
 from lib.config import Config
 from lib.utils import rindex, real_lines, unescape, debug
+from backend.database import SQLDatabase
 import string
 
 @Singleton
@@ -77,6 +78,10 @@ class Category(Loggable):
             else:
             	self._categoryToParentCategory[i] = 0
             previous_processed_category=category_at_right_most
+            
+            #here i am going to save to the sql database
+            #SQLDatabase.Instance().insert_into_category(i,category_at_right_most)
+            
             i += 1
         self._all_root_category_nums = map((lambda x: x[0]), filter((lambda x: x[1]==0), self._categoryToParentCategory.items()))
         self._all_root_category_names = filter((lambda x: x[0] in self._all_root_category_nums), self._categoryNumToName.items())
@@ -172,4 +177,17 @@ class Category(Loggable):
     def set_path(self, new_path):
         self._path=new_path
         self.__init__()
+
+#the dimension of each map_results is hardcored
+def replace_category_num_with_name(map_results, category_index):
+    category=Category.Instance()
+    new_map_results = [m[0:(category_index)]+(category.get_name(m[category_index]),) + m[category_index+1:] for m in map_results]
+    #debug()
+    #i=0
+    #for map_result in map_results:
+    #    debug()
+    #    name=category.get_name(map_result[category_index])
+    #    map_results[i][category_index] = name
+    #    i+=1
+    return new_map_results
     

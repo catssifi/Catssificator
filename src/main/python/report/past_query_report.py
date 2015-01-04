@@ -19,17 +19,25 @@
 # Date: 2014 Dec - 2015
 
 from lib.loggable import Loggable
-from lib.utils import debug, convert_to_offset_to_draw, dumps
+from lib.utils import debug, convert_to_offset_to_draw, dumps,replace_category_num_with_name
 from backend.database import SQLDatabase,DB_Constants
+from backend.category import Category
 
 class PastQueryReport(Loggable):
     _offset=None
     _limit=None
+    _draw=None
+    _ordered_column_index=None
+    _ordered_direction=None
     _sqldb=None
     
-    def __init__ (self, limit=25, offset=0):
+    #draw parameter is pretty much specify to the datatable web plugin
+    def __init__ (self, draw, limit=25, offset=0, ordered_column_index=0, ordered_direction=''):
+        self._draw = int(draw)
         self._limit=limit
         self._offset=offset
+        self._ordered_column_index=ordered_column_index
+        self._ordered_direction=ordered_direction
         self._sqldb=SQLDatabase.Instance()
         
     #returns a json document
@@ -37,11 +45,12 @@ class PastQueryReport(Loggable):
         _cols=[DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, 
                DB_Constants.tbl_Query_Map_col_from_who,
                DB_Constants.tbl_Query_Map_col_categories, DB_Constants.tbl_Query_Map_col_create_date]
-        map_results = self._sqldb.select_query_map(cols=_cols, limit=self._limit, offset=self._offset)
+        map_results = self._sqldb.select_query_map(cols=_cols, limit=self._limit, offset=self._offset, ordered_column_index=self._ordered_column_index, ordered_direction=self._ordered_direction)
+        map_results = replace_category_num_with_name(map_results, 3)
         records_total=0 if not map_results else self._sqldb.count_query_map()
         records_filtered=0 if not map_results else records_total
         results={
-                    "draw": convert_to_offset_to_draw(self._offset, self._limit), 
+                    "draw": self._draw, 
                     "recordsTotal": records_total, 
                     "recordsFiltered": records_filtered,
                     "data": 

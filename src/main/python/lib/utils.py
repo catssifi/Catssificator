@@ -209,4 +209,12 @@ def columnize_in_sql_way(cols):
     else:
         return '*'
 
+def build_ordered_by_sql_clause(ordered_column, ordered_direction):
+    sql_ordered_by_str=''
+    if ordered_column:
+        sql_ordered_by_str='ORDER BY ' + ordered_column
+        if ordered_direction:
+            sql_ordered_by_str+= ' ' + ordered_direction
+    return sql_ordered_by_str
+
 log = get_logger("Utils") 

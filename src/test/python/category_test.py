@@ -22,6 +22,8 @@ from os.path import abspath, join, dirname
 sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/'))
 from backend.category import Category
 from lib.config import Config
+from lib.utils import debug
+from backend.database import SQLDatabase
 import unittest
 
 class CategoryTest(unittest.TestCase):
@@ -30,13 +32,13 @@ class CategoryTest(unittest.TestCase):
 	_test_dir=join(abspath(dirname('__file__')), '../../../config/test/')
 	
 	def setUp(self):
-		config_file = self._test_dir + 'setup-test.yaml'
-		Config.Instance().set_config_path(config_file)
+		#config_file = self._test_dir + 'setup-test.yaml'
+		#Config.Instance().set_config_path(config_file)
 		Config.Instance().set_mode('prod')
 		
 		self._category=Category.Instance()
-		cat_file = self._test_dir +'test-category-production.txt'
-		self._category.set_path(cat_file)
+		#cat_file = self._test_dir +'test-category-production.txt'
+		#self._category.set_path(cat_file)
 			
 
 	def test_category_prod_mode_get_single_category(self):
@@ -45,6 +47,12 @@ class CategoryTest(unittest.TestCase):
 		
 		category_str = self._category.get_name(5555, full_path=True)
 		self.assertEqual(category_str, 'Sporting Goods > Team Sports > Softball')
+		
+		#also make sure the category gets save to the database
+		#debug() 
+		#returned_category_num = SQLDatabase.Instance().select_category(category='Softball')[0][0]
+		#self.assertEqual(returned_category_num, 5555)
+		
 	
 	def test_category_prod_mode_get_all_categories(self):
 		cats = self._category.get_categories()
@@ -64,11 +72,13 @@ class CategoryTest(unittest.TestCase):
 		#self.assertEqual(cats[2][1], 'Arts & Entertainment')
 	
 	def test_category_prod_mode_get_full_name(self):
+		#debug()
 		cat = self._category.get_full_name('Live%20Animals')
 		self.assertEqual(cat, 'Animals & Pet Supplies > Live Animals')
 
     
 	def tearDown(self):
-		Config.Instance().set_mode('dev')
-		cat_file = self._test_dir +'test-category.txt'
-		self._category.set_path(cat_file)
+		pass
+		#Config.Instance().set_mode('dev')
+		#cat_file = self._test_dir +'test-category.txt'
+		#self._category.set_path(cat_file)
