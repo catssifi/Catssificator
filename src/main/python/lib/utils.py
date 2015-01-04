@@ -63,6 +63,12 @@ def generate_token(len):
     token = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(len))
     return datetimestr+'_'+token
 
+##Cookie related ########################################
+def remove_non_valid_chars(line):
+    if line:
+        line = line.replace('\n', '')
+    return line
+
 ##Date/time part ########################################
 def get_datetime():
     return strftime("%Y%m%d%H%M%S", gmtime())

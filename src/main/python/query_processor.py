@@ -84,15 +84,17 @@ class QueryProcessor(Loggable):
             response_str = {"result":"yes", "message":"query: \'%s\' has been processed!"% (extract_head_tail(query))}
             if dumps_it:
                 response_str = dumps(response_str)
-            #also clean up this token:
-            RequestTicketSystem.Instance().remove(token)
             
-            #record the query with category to the long term storag
+            #also clean up this token:
+            if token:
+                RequestTicketSystem.Instance().remove(token)
+            
+            #record the query with category to the long term storage
             SQLDatabase.Instance().insert_into_query_map(query, from_who, str(category_num))
             
         return response_str
     
-    def submit_in_chunk(self, queries, category_num):
+    def submit_in_chunk(self, queries, category_num, from_who=''):
         response_str_list=[]
         for query in queries:
             if isinstance(query, list):

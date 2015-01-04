@@ -12,6 +12,9 @@
   	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
     <script src="/static/lib/bootstrap/js/main.js"></script>
   	<script>
+      var cookie_NAME_SPACE='catssificator_cookie_'
+      var cookie_Query_name = cookie_NAME_SPACE +'query'
+    
           function txtSearchQueryInput_click() {
 
             $( "#txtSearchQueryInput" ).select();
@@ -77,8 +80,14 @@
 
       $(document).ready(function() {
           refresh_ui();
+          var query_cookie=readCookie(cookie_Query_name)
+          if (query_cookie != '') {
+            $( "#txtSearchQueryInput").val(query_cookie);
+            refresh_ui_buttons_panel_1(getPointerEventsValueOn(), getOpacityOn());
+          }
       });
 
+      
   </script>
 
   
