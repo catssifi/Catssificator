@@ -39,6 +39,12 @@ class UploadPageHandler(BaseHandler):
             _query=RequestTicketSystem.Instance().get_query(_token)
         self.render("upload.html", categories=_category_menu_in_html, token=_token, query=_query)
         
+class ReportsPageHandler(BaseHandler):
+    def get(self):
+        #self.write("Hello, world")
+        #debug()
+        self.render("reports.html")
+        
 class AboutPageHandler(BaseHandler):
     def get(self):
         #self.write("Hello, world")

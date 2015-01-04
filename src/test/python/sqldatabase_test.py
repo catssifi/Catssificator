@@ -28,11 +28,9 @@ import unittest
 class SQLDatabaseTest(unittest.TestCase):
 
 	#_test_path=join(abspath(dirname('__file__')), '../../../data/test/')
-	_test_file='test-sqldb.db'
 	_sqldb = None
 
 	def setUp(self):
-		SQLDatabase._db_location = self._test_file
 		self._sqldb=SQLDatabase.Instance()
 		self._sqldb.drop_all_tables()	#drop all tables to have a fresh start
 		self._sqldb.init_sqlite()		#recreate it back
@@ -55,4 +53,8 @@ class SQLDatabaseTest(unittest.TestCase):
 		self._sqldb.del_query_map_by_id([1, id])
 		result = self._sqldb.select_query_map(cols=['id'])
 		self.assertEqual(len(result), 2)	#removed two, should have only 2 records
+		
+		count = self._sqldb.count_query_map()
+		self.assertEqual(count, 2)
+		
 		

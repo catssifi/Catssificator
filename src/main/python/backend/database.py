@@ -30,15 +30,20 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, sessionmaker
 
 Base = declarative_base()
-tbl_Query_Map = 'Query_Map'
-tbl_Category = "Category"
+
+class DB_Constants(object):
+	tbl_Query_Map = 'Query_Map'
+	tbl_Query_Map_col_id = 'id'
+	tbl_Query_Map_col_query = 'query'
+	tbl_Query_Map_col_from_who = 'from_who'
+	tbl_Query_Map_col_create_date = 'create_date'
+	tbl_Query_Map_col_categories = 'categories'
+	tbl_Category = 'Category'
+	tbl_Category_col_category_num = 'category_num'
+	tbl_Category_col_category = 'category'
 
 @Singleton
 class SQLDatabase(Loggable):
-
-	global tbl_Query_Map
-	global tbl_Category
-	
 	
 	_db_location = None
 	_db = None
@@ -46,7 +51,7 @@ class SQLDatabase(Loggable):
 	
 	def __init__(self):
 		if not self._db_location:
-			if not SQLDatabase._db_location:
+			if not hasattr(SQLDatabase, '_db_location') or not SQLDatabase._db_location:
 				self._db_location = Config.Instance().get_yaml_data(['db', 'location'], 'database.db')
 			else:
 				self._db_location = SQLDatabase._db_location	#This is for testing purpose
@@ -55,18 +60,27 @@ class SQLDatabase(Loggable):
 		self.info('Initializing SQLiteDatabase object at path: %s' % (self._db_location))
 		self.init_sqlite()
 		
-	def insert_into_query_map(self, query, from_who, categories=''):
+	def insert_into_query_map(self, query, from_who, categories_str=''):
 		sql = '''INSERT INTO %s (query, from_who, create_date, categories) VALUES("%s", "%s", datetime('NOW'), "%s")
-				'''         %(tbl_Query_Map, query, from_who, categories)
+				'''         %(DB_Constants.tbl_Query_Map, query, from_who, categories_str)
 		self.execute(sql)
 		pass
 
 	def get_connection(self):
 		return sqlite3.connect(self._db_location)
 
+	def count_query_map(self):
+		return self._count_table(DB_Constants.tbl_Query_Map)
+	
+	def _count_table(self, table_name):
+		sql = 'select count(1) from %s' % (table_name)
+		results = self.execute(sql, return_results=True)
+		return results[0][0]
+
+
 	def select_query_map(self, cols=None, id=None, limit=10, offset=0):
 		cols_str=columnize_in_sql_way(cols)
-		return self._select_table(tbl_Query_Map, cols_str, id, limit, offset)
+		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, id, limit, offset)
 
 	def _select_table(self, table_name, cols_str, id=None, limit=10, offset=0):
 		sql = '''select %s        from %s LIMIT %s OFFSET %s 
@@ -77,29 +91,29 @@ class SQLDatabase(Loggable):
 	def del_query_map_by_id(self, ids):
 		ids_str=columnize_in_sql_way(ids)
 		sql = ''' DELETE FROM %s WHERE id in (%s)
-		'''                   %(tbl_Query_Map, ids_str)
+		'''                   %(DB_Constants.tbl_Query_Map, ids_str)
 		results = self.execute(sql)
 
 	#This method is very danergous! call with caution
 	def drop_all_tables(self):
 		with self._lock:
-			sql = "drop table if exists %s ;"%(tbl_Query_Map)
+			sql = "drop table if exists %s ;"%(DB_Constants.tbl_Query_Map)
 			self.execute(sql)
-			sql = "drop table if exists %s ;"%(tbl_Category)
+			sql = "drop table if exists %s ;"%(DB_Constants.tbl_Category)
 			self.execute(sql)
 
 	def init_sqlite(self):
 		with self._lock:
 			sql = '''
 			          CREATE TABLE if not exists %s
-			          (id INTEGER PRIMARY KEY ASC, query TEXT NOT NULL, from_who VARCHAR(80), create_date DATETIME, categories VARCHAR(40)) 
-			          ''' % (tbl_Query_Map)
+			          ( %s INTEGER PRIMARY KEY ASC, %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
+			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
 			self.execute(sql)
 			
 			sql = '''
 						CREATE TABLE if not exists %s
-			          (category_num SMALLINT NOT NULL, category VARCHAR(80) NOT NULL)
-					''' % (tbl_Category)
+			          (%s SMALLINT NOT NULL, %s VARCHAR(80) NOT NULL)
+					''' % (DB_Constants.tbl_Category, DB_Constants.tbl_Category_col_category_num, DB_Constants.tbl_Category_col_category)
 			self.execute(sql)
 		
 	def execute(self, sql_statement, return_results=False):

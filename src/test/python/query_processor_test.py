@@ -26,6 +26,7 @@ from backend.datastore import *
 from lib.utils import *
 from query_processor import QueryProcessor 
 from backend.category import Category
+from backend.database import SQLDatabase
 import unittest
 
 class QueryProcessorTest(unittest.TestCase):
@@ -42,7 +43,9 @@ class QueryProcessorTest(unittest.TestCase):
         self._category=Category.Instance()
         self._category.set_path(join(abspath(dirname('__file__')), '../../../config/test/')+'test-category.txt')
         self._qp = QueryProcessor(self._fds)
-    
+        SQLDatabase.Instance().drop_all_tables()    #drop all tables to have a fresh start
+        SQLDatabase.Instance().init_sqlite()        #recreate it back
+        
     def test_query_processing(self):
         query='look for a IPHONE'
         words = self._qp.process_query(query)
@@ -72,10 +75,13 @@ class QueryProcessorTest(unittest.TestCase):
     def test_submit(self):
         query_submit='Amazon kindle good sales'
         category='Technology'
-        self._qp.submit(query_submit, category)
+        self._qp.submit(query_submit, category, from_who='localhost')
+        result = SQLDatabase.Instance().select_query_map(cols=['query'])
+        self.assertEqual(len(result), 1)
+    
         query_submit='Is Thailand good'
         category='Travel'
-        self._qp.submit(query_submit, category)
+        self._qp.submit(query_submit, category, from_who='localhost')
         
         query='is amazon good'
         ans=self._qp.inquire(query)
@@ -83,17 +89,20 @@ class QueryProcessorTest(unittest.TestCase):
         self.assertEqual(get_json_value(ans, 'category'), 'Technology')   #should find it as Technology
         
         category_invalid='Porn'                                 #Try to submit to some invalid nonexist category
-        sub_ans=self._qp.submit(query_submit, category_invalid)
+        sub_ans=self._qp.submit(query_submit, category_invalid, from_who='localhost2')
         self.assertEqual(get_json_value(sub_ans, 'result'), 'no')   #should not find it
+        
+        result = SQLDatabase.Instance().select_query_map(cols=['query'])
+        self.assertEqual(len(result), 2)    #should have 2 records in total from this method
+    
         
     def test_stemming_word_query_answer(self):
         query_submit='I repaired an macbook pro'
         category='Hardware'
-        self._qp.submit(query_submit, category)
+        self._qp.submit(query_submit, category, from_who='localhost2')    
         
         query='monitor repairment'
         ans=self._qp.inquire(query)
         self.assertEqual(get_json_value(ans, 'category'), 'Hardware')   #should find it as Hardware since repairment is same as repair after being stemmed
-        
-    
+            
         

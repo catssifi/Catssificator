@@ -181,6 +181,23 @@ def unescape(s):
     s = s.replace("&amp;", "&")
     return s
 
+##Reports related #############################################
+
+#It is converting the datatable's draw to the offset which is suitable to the sql palace
+def convert_draw_to_offset(draw, length):
+    if is_string(draw):
+        draw=int(draw)
+    if is_string(length):
+        length=int(length)
+    return (draw) * length
+
+def convert_to_offset_to_draw(offset, length):
+    if is_string(offset):
+        offset=int(offset)
+    if is_string(length):
+        length=int(length)
+    return (offset / length) + 1
+
 ##SQL util stuffs #############################################
 #cols must be a type of list
 def columnize_in_sql_way(cols):

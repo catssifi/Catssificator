@@ -21,8 +21,9 @@ import string
 from web.base_handler import BaseHandler, get_argument
 from backend.category import Category
 from query_processor import QueryProcessor
-from lib.utils import dumps
+from lib.utils import dumps, debug, convert_draw_to_offset
 from backend.fileupload import FileUploader
+from report.past_query_report import PastQueryReport
 
 def get_full_name(arguments):
     selected_name=get_argument(arguments, 'selectedName')
@@ -49,6 +50,15 @@ def submit_upload(arguments):
     FileUploader.remove_tokens(tokens)
     return response_str
 
+def report_past_queries(arguments):
+    #draw = get_argument(arguments, 'draw')
+    length = get_argument(arguments, 'length')
+    _offset=int(get_argument(arguments, 'start')[0])
+    _offset=convert_draw_to_offset(_offset, length)
+    response_str = PastQueryReport(limit=length, offset=_offset).generate_report()
+    #debug()
+    return response_str
+
 class APIHandler(BaseHandler):
     def get(self, method):
         response=''
@@ -60,5 +70,7 @@ class APIHandler(BaseHandler):
             response = submit_query(self.request.arguments)
         elif method == 'submit_upload': 
             response = submit_upload(self.request.arguments)
+        elif method == 'report_past_queries':
+            response = report_past_queries(self.request.arguments)
         self.write(response)
     
