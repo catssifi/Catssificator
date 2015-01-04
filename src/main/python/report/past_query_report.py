@@ -19,9 +19,9 @@
 # Date: 2014 Dec - 2015
 
 from lib.loggable import Loggable
-from lib.utils import debug, convert_to_offset_to_draw, dumps,replace_category_num_with_name
+from lib.utils import debug, convert_to_offset_to_draw, dumps
 from backend.database import SQLDatabase,DB_Constants
-from backend.category import Category
+from backend.category import Category,replace_category_num_with_name
 
 class PastQueryReport(Loggable):
     _offset=None
