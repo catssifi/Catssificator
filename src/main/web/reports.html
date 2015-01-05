@@ -9,23 +9,77 @@
     <link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
 
     <!-- start: for the datatable -->
-    <link href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.css" rel="stylesheet">
+    <link href="/static/lib/bootstrap/css/jquery.dataTables.css" rel="stylesheet">
+    <style type="text/css">
+      td.details-control {
+          background: url('/static/lib/bootstrap/img/details_open.png') no-repeat center center;
+          cursor: pointer;
+      }
+      tr.shown td.details-control {
+          background: url('/static/lib/bootstrap/img/details_close.png') no-repeat center center;
+      }
+    </style>
     <script src="//code.jquery.com/jquery-1.11.1.min.js" language="javascript" type="text/javascript"></script>
-    <script src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js" language="javascript" type="text/javascript"></script>
+    <script src="/static/lib/bootstrap/js/jquery.dataTables.min.js" language="javascript" type="text/javascript"></script>
     <script>
+
+      /* Formatting function for row details - modify as you need */
+      function format(){
+          return '<div><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+              '<tr>'+
+                  '<td>Full Category Path:</td>'+
+                  '<td></td>'+
+              '</tr>'+
+              '<tr>'+
+                  '<td>Full Query:</td>'+
+                  '<td></td>'+
+              '</tr>'+
+          '</table></div>';
+      }
+
       $(document).ready(function() {
-          $('#example').dataTable( {
+          var table=$('#example').dataTable( {
               "processing": true,
               "serverSide": true,
-              "columnDefs": [
-                  {
-                      "targets": [ 0 ],
-                      "visible": false,
-                      "searchable": false
-                  }
-              ], 
-              "ajax": "/api/report_past_queries"
               
+              "ajax": "/api/report_past_queries"
+              , 
+              "columns": [
+                  {
+                      "className":      'details-control',
+                      "orderable":      false,
+                      "data":           null,
+                      "defaultContent": ''
+                  },
+                  
+                  { "data": "query" },
+                  { "data": "from_who" },
+                  { "data": "categories" },
+                  { "data": "create_date" }
+              ]
+          } );
+           // Add event listener for opening and closing details
+          $('#example tbody').on('click', 'td.details-control', function () {
+              var tr = $(this).closest('tr');
+              if (tr.next().has('div').length>0) {
+                tr.next().remove()
+              } else {
+                tr.after('<tr><td colspan=5>'+format()+'</td></tr>')
+              }
+              /*
+              var row = table.row( tr );
+       
+              if ( row.child.isShown() ) {
+                  // This row is already open - close it
+                  row.child.hide();
+                  tr.removeClass('shown');
+              }
+              else {
+                  // Open this row
+                  row.child( format(row.data()) ).show();
+                  tr.addClass('shown');
+              }
+              */
           } );
       } );
     </script>
@@ -60,7 +114,7 @@
 <table id="example" class="display" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th>id</th>
+                <th></th>
                 <th>Query</th>
                 <th>Source IP</th>
                 <th>Category</th>
@@ -70,7 +124,7 @@
  
         <tfoot>
             <tr>
-                <th>id</th>
+                <th></th>
                 <th>Query</th>
                 <th>Source IP</th>
                 <th>Category</th>

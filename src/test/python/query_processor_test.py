@@ -82,13 +82,14 @@ class QueryProcessorTest(unittest.TestCase):
         query_submit='Is Thailand good'
         category='Travel'
         self._qp.submit(query_submit, category, from_who='localhost')
-        result = SQLDatabase.Instance().select_query_map(cols=[DB_Constants.tbl_Query_Map_col_query,DB_Constants.tbl_Query_Map_col_categories])
+        _cols=[DB_Constants.tbl_Query_Map_col_query,DB_Constants.tbl_Query_Map_col_categories]
+        result = SQLDatabase.Instance().select_query_map(cols=_cols)
         self.assertEqual(len(result), 2)
     
         #Now try to replace the category_number to category_name
-        cat_name_index=1
-        new_result_after_replacing_cat_num_with_cat_name=replace_category_num_with_name(result, cat_name_index)
-        self.assertEqual(new_result_after_replacing_cat_num_with_cat_name[1][cat_name_index],'Travel')
+        result = map_keys_to_the_values(result, _cols)
+        new_result_after_replacing_cat_num_with_cat_name=replace_category_num_with_name(result, DB_Constants.tbl_Query_Map_col_categories)
+        self.assertEqual(new_result_after_replacing_cat_num_with_cat_name[1][DB_Constants.tbl_Query_Map_col_categories],'Travel')
         
         
         query='is amazon good'

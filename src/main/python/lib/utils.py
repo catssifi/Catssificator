@@ -63,6 +63,24 @@ def generate_token(len):
     token = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(len))
     return datetimestr+'_'+token
 
+def map_keys_to_the_values(values_without_key, keys):
+    new_key_value_list=list()
+    #keys=map(lambda x: x.replace('\'', '"'), keys)
+    for value in values_without_key:
+        new_tuple=list()
+        i=0
+        obj = {}
+        for item in value:
+            obj[keys[i]] = item if is_string(item) else str(item)
+            i+=1
+        new_key_value_list.append(obj)
+    return new_key_value_list
+
+def jsonize_str (map_results):
+    debug()
+    map_results_1 = str(map_results).replace('{', '').replace('}', '')
+    return map_results_1
+
 ##Cookie related ########################################
 def remove_non_valid_chars(line):
     if line:
