@@ -17,10 +17,12 @@
 #
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
-from lib.utils import debug
+from lib.utils import debug,convert_datetime_to_s
 from web.uibuilder import UIBuilder
 from web.base_handler import BaseHandler, get_argument
+from web.cache import Cache
 from request_ticket_system import RequestTicketSystem
+from datetime import datetime
 
 class HomePageHandler(BaseHandler):
     def get(self):
@@ -43,7 +45,21 @@ class ReportsPageHandler(BaseHandler):
     def get(self):
         #self.write("Hello, world")
         #debug()
-        self.render("reports.html")
+        _submissions_today = Cache.Instance().get_submissions_today()
+        _submissions_in_the_past_7_days = Cache.Instance().get_submissions_in_the_past_n_days(7)
+        _submissions_in_the_past_30_days = Cache.Instance().get_submissions_in_the_past_n_days(30)
+        now= datetime.now()
+        _year=now.year
+        _month=now.month
+        _day=now.day
+        _hour=now.hour
+        _minute=now.minute
+        _second=now.second
+        
+        self.render("reports.html", submissions_today=_submissions_today
+                    , submissions_in_the_past_7_days=_submissions_in_the_past_7_days
+                    , submissions_in_the_past_30_days=_submissions_in_the_past_30_days
+                    , year=_year, month=_month, day=_day, hour=_hour, minute=_minute, second=_second)
         
 class AboutPageHandler(BaseHandler):
     def get(self):

@@ -90,6 +90,11 @@ def remove_non_valid_chars(line):
 ##Date/time part ########################################
 def get_datetime():
     return strftime("%Y%m%d%H%M%S", gmtime())
+def convert_date_to_s(d, format='%Y%m%d'):
+    return d.strftime(format)
+def convert_datetime_to_s(d, format='%Y-%m-%d %H:%M:%S'):
+    return d.strftime(format)
+
 
 ##DEBUG related #########################################
 def debug():

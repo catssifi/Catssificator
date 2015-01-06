@@ -92,6 +92,9 @@ class QueryProcessor(Loggable):
             #record the query with category to the long term storage
             SQLDatabase.Instance().insert_into_query_map(query, from_who, str(category_num))
             
+            #increment the submission count
+            SQLDatabase.Instance().increment_submission_count()
+            
         return response_str
     
     def submit_in_chunk(self, queries, category_num, from_who=''):

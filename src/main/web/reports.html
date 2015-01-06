@@ -81,7 +81,27 @@
               }
               */
           } );
+
+          setTimeout(function() {
+            setInterval(function() {
+              incrementNow();
+            }, 1000);
+          });
+
       } );
+
+        var now = new Date();
+        now.setYear({% raw year %});
+        now.setMonth({% raw month %}-1);
+        now.setDate({% raw day %});
+        now.setHour({% raw hour %});
+        now.setMinute({% raw minute %});
+        now.setSecond({% raw second %});
+
+        function incrementNow() {
+          now.setSeconds( now.getSeconds() + 1)
+          $('#divTime').text(""+now);
+        }
     </script>
     <!-- end: for the datatable -->
 
@@ -99,7 +119,23 @@
         <li ><a href="about.html">About</a></li>
     </ul>
 
-<blockquote><h3>Total number of submissions in the past day: 0</h3> </blockquote>
+<table width="100%">
+<tr>
+<td width="50%">
+<blockquote>
+<h3>Total number of submissions today: <b>{% raw submissions_today %}</b></h3>
+<h4>In the past 7 days: <b>{% raw submissions_in_the_past_7_days %}</b></h4>
+<h4>In the past 30 days: <b>{% raw submissions_in_the_past_30_days %}</b></h4>
+</blockquote>
+</td>
+<td width="50%" valign="middle">
+<p align="right">
+Server time: <b><span id="divTime"></span></b>
+</p>
+</td>
+</tr>
+
+</table>
   
   <table class="table table-striped table-bordered">
     <thead>

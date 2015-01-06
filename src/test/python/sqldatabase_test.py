@@ -18,6 +18,7 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
+from datetime import datetime
 import sys
 from os.path import abspath, join, dirname
 sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/'))
@@ -57,5 +58,103 @@ class SQLDatabaseTest(unittest.TestCase):
 		
 		count = self._sqldb.count_query_map()
 		self.assertEqual(count, 2)
+	
+	def test_submission_counts(self):
+		day_N=10
+		count = self._sqldb.get_submission_count(day_N)
+		self.assertEqual(count, 0)
+		
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		count = self._sqldb.get_submission_count(day_N)
+		self.assertEqual(count, 3)
+		
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		count = self._sqldb.get_submission_count(day_N)
+		self.assertEqual(count, 1)
+		
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		#debug()
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		count = self._sqldb.get_submission_count(day_N)
+		self.assertEqual(count, 0)
+		
+		#debug()
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		count = self._sqldb.get_submission_count(day_N)
+		self.assertEqual(count, 4)
+		
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		self.assertEqual(count, 4)
+		
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		self._sqldb.decrement_submission_count_on_day_n(day_N)
+		count = self._sqldb.get_submission_count(day_N)
+		self.assertEqual(count, 0)
+		
+		self._sqldb.increment_submission_count_on_day_n(day_N)
+		count = self._sqldb.get_submission_count(day_N)
+		self.assertEqual(count, 1)
+		
+	def test_aggregate_submission_counts(self):
+		day_1 = 1	#it means on the INCEPTION_DAY
+		day_2 = 2	#it means on the INCEPTION_DAY + 1
+		day_3 = 3	#it means on the INCEPTION_DAY + 2
+		
+		self._sqldb.increment_submission_count_on_day_n(day_3)
+		self._sqldb.increment_submission_count_on_day_n(day_1)
+		self._sqldb.increment_submission_count_on_day_n(day_1)
+		self._sqldb.increment_submission_count_on_day_n(day_1)
+		self._sqldb.increment_submission_count_on_day_n(day_2)
+		self._sqldb.increment_submission_count_on_day_n(day_1)
+		self._sqldb.increment_submission_count_on_day_n(day_2)
+		self._sqldb.increment_submission_count_on_day_n(day_1)
+		self._sqldb.increment_submission_count_on_day_n(day_1)
+		self._sqldb.decrement_submission_count_on_day_n(day_1) # this is minus
+		self._sqldb.increment_submission_count_on_day_n(day_2)
+		self._sqldb.increment_submission_count_on_day_n(day_1)
+		
+		count = self._sqldb.get_submission_count(day_1)
+		self.assertEqual(count, 6)
+		count = self._sqldb.get_submission_count(day_2)
+		self.assertEqual(count, 3)
+		count = self._sqldb.get_submission_count(day_3)
+		self.assertEqual(count, 1)
+		
+		#Now do the fun parts: calculate the aggregate submission counts
+		DB_Constants.INCEPTION_DATE = datetime(2010,01,01)
+		_date_started_back_to = datetime(2010, 01, 03)
+		_back_days=3
+		agg_count = self._sqldb.get_aggregate_submission_count(date_started_back_to=_date_started_back_to, back_days=_back_days)
+		self.assertEqual(agg_count, 10)
+		
+	def test_aggregate_submission_counts_on_today(self):
+		DB_Constants.INCEPTION_DATE = datetime(2011,01,01)
+		fake_today = datetime(2011,01, 05)
+		self._sqldb.increment_submission_count(fake_today)
+		self._sqldb.increment_submission_count(fake_today)
+		self._sqldb.decrement_submission_count(fake_today)
+		self._sqldb.increment_submission_count(fake_today)
+		self._sqldb.increment_submission_count(fake_today)
+		
+		count = self._sqldb.get_submission_count(5)
+		self.assertEqual(count, 3)
 		
 		
