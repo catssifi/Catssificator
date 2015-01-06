@@ -29,7 +29,6 @@ import sqlite3
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relation, sessionmaker
-from django.db.models.aggregates import Count
 
 Base = declarative_base()
 
