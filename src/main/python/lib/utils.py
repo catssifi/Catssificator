@@ -26,9 +26,15 @@ import Stemmer
 import string
 import random
 import sys
+from datetime import datetime
+from pytz import timezone
+import pytz
 from time import gmtime, strftime
+import time
 from os import listdir
 from os.path import abspath, join, dirname, isfile
+
+os.environ['TZ'] = 'UTC'
 
 def get_logger(name):
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -94,7 +100,22 @@ def convert_date_to_s(d, format='%Y%m%d'):
     return d.strftime(format)
 def convert_datetime_to_s(d, format='%Y-%m-%d %H:%M:%S'):
     return d.strftime(format)
+def convert_s_to_date(s, format='%Y%m%d'):
+    return datetime.strptime(s, format)
 
+def convert_UTC_time_zone_to_Local_time_zone(utc_time, local_time_zone):
+    return datetime.fromtimestamp( time.mktime(datetime.strptime(
+                                    utc_time, "%Y-%m-%d %H:%M:%S").timetuple()) , pytz.timezone(local_time_zone))
+
+#local_time_zone can be 'America/New_York'
+def convert_UTC_time_zones_to_Local_time_zones_in_bulk(map_results, time_col_name, local_time_zone='UTC'):
+    if map_results:
+        for m in map_results:
+            utc_time = m[time_col_name]
+            local_time = convert_UTC_time_zone_to_Local_time_zone(utc_time, local_time_zone)
+            m[time_col_name] = str(local_time) + ' ' + local_time_zone
+            
+    return map_results
 
 ##DEBUG related #########################################
 def debug():

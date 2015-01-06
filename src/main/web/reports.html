@@ -25,7 +25,7 @@
 
       /* Formatting function for row details - modify as you need */
       function format(){
-          return '<div><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+          return '<div><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;" width="100%">'+
               '<tr>'+
                   '<td>Full Category Path:</td>'+
                   '<td></td>'+
@@ -90,13 +90,8 @@
 
       } );
 
-        var now = new Date();
-        now.setYear({% raw year %});
-        now.setMonth({% raw month %}-1);
-        now.setDate({% raw day %});
-        now.setHour({% raw hour %});
-        now.setMinute({% raw minute %});
-        now.setSecond({% raw second %});
+        var now = new Date(Date.UTC({% raw year %}, {% raw month %}-1, {% raw day %}, {% raw hour %}, {% raw minute %}, {% raw second %}));
+        now.setUTCHours(now.getUTCHours());
 
         function incrementNow() {
           now.setSeconds( now.getSeconds() + 1)
@@ -130,7 +125,7 @@
 </td>
 <td width="50%" valign="middle">
 <p align="right">
-Server time: <b><span id="divTime"></span></b>
+Local time: <b><span id="divTime"></span></b>
 </p>
 </td>
 </tr>
@@ -151,7 +146,7 @@ Server time: <b><span id="divTime"></span></b>
         <thead>
             <tr>
                 <th></th>
-                <th>Query</th>
+                <th width="50%">Query</th>
                 <th>Source IP</th>
                 <th>Category</th>
                 <th>Date</th>

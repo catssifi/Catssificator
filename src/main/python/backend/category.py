@@ -181,8 +181,9 @@ class Category(Loggable):
 #the dimension of each map_results is hardcored
 def replace_category_num_with_name(map_results, category_index):
     category=Category.Instance()
-    for m in map_results:
-        m[category_index] = category.get_name(m[category_index]) 
+    if map_results:
+        for m in map_results:
+            m[category_index] = category.get_name(m[category_index]) 
     return map_results
     #debug()
     #i=0

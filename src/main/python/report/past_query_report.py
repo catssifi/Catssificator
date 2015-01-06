@@ -19,7 +19,7 @@
 # Date: 2014 Dec - 2015
 
 from lib.loggable import Loggable
-from lib.utils import debug, convert_to_offset_to_draw, dumps, map_keys_to_the_values,jsonize_str
+from lib.utils import debug, convert_to_offset_to_draw, dumps, map_keys_to_the_values,jsonize_str, convert_UTC_time_zones_to_Local_time_zones_in_bulk
 from backend.database import SQLDatabase,DB_Constants
 from backend.category import Category,replace_category_num_with_name
 
@@ -55,6 +55,7 @@ class PastQueryReport(Loggable):
                 self._ordered_direction = 'ASC'
         map_results = self._sqldb.select_query_map(cols=_cols, limit=self._limit, offset=self._offset, ordered_column_index=self._ordered_column_index, ordered_direction=self._ordered_direction)
         map_results = map_keys_to_the_values(map_results, _cols)
+        map_results = convert_UTC_time_zones_to_Local_time_zones_in_bulk(map_results, DB_Constants.tbl_Query_Map_col_create_date)
         map_results = replace_category_num_with_name(map_results, DB_Constants.tbl_Query_Map_col_categories)
         records_total=0 if not map_results else self._sqldb.count_query_map()
         records_filtered=0 if not map_results else records_total
