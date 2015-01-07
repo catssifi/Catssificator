@@ -44,10 +44,10 @@
           var table=$('#example').dataTable( {
               "processing": true,
               "serverSide": true,
-              "scrollY":        "500px",
+              "scrollY":        "550px",
         "scrollCollapse": true,
-              "ajax": "/api/report_past_queries"
-              , 
+              "ajax": "/api/report_past_queries",
+                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]], 
                "columnDefs": [ { "visible": false,  "targets": [ 1 ] }, 
                               {
                 // The `data` parameter refers to the data for the cell (defined by the
