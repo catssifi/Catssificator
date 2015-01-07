@@ -41,7 +41,13 @@
           var table=$('#example').dataTable( {
               "processing": true,
               "serverSide": true,
-              
+              "columnDefs": [
+                  {
+                      "targets": [ 1 ],
+                      "visible": false,
+                      "searchable": false
+                  }
+              ], 
               "ajax": "/api/report_past_queries"
               , 
               "columns": [
@@ -51,7 +57,7 @@
                       "data":           null,
                       "defaultContent": ''
                   },
-                  
+                  { "data": "id" },
                   { "data": "query" },
                   { "data": "from_who" },
                   { "data": "categories" },
@@ -63,8 +69,21 @@
               var tr = $(this).closest('tr');
               if (tr.next().has('div').length>0) {
                 tr.next().remove()
+                 tr.removeClass('shown');
               } else {
-                tr.after('<tr><td colspan=5>'+format()+'</td></tr>')
+                //tr.after('<tr><td colspan=5>'+format()+'</td></tr>')
+                 //tr.addClass('shown');
+                           $.ajax({
+                  url:"/api/report_past_query", 
+                  data: "id=2", success:
+                  function(result) {
+                      var j = parseJson(result);
+                      alert(j)
+                    }
+                    //resultMsg=decorateWithSucessfulMessage(resultMsg)
+                    //displayResultMessage("#divQueryResult", resultMsg) 
+                  });
+
               }
               /*
               var row = table.row( tr );
@@ -146,6 +165,7 @@ Local time: <b><span id="divTime"></span></b>
         <thead>
             <tr>
                 <th></th>
+                <th>ID</th>
                 <th width="50%">Query</th>
                 <th>Source IP</th>
                 <th>Category</th>
@@ -156,6 +176,7 @@ Local time: <b><span id="divTime"></span></b>
         <tfoot>
             <tr>
                 <th></th>
+                <th>ID</th>
                 <th>Query</th>
                 <th>Source IP</th>
                 <th>Category</th>
