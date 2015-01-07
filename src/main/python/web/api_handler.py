@@ -54,6 +54,11 @@ def submit_upload(arguments, from_who=''):
     FileUploader.remove_tokens(tokens)
     return response_str
 
+def report_past_query(arguments, from_who=''):
+    _id = get_argument(arguments, 'id')
+    response_str = PastQueryReport(0).generate_detail_report_by_id(_id)
+    return response_str
+    
 def report_past_queries(arguments, from_who=''):
     _draw = get_argument(arguments, 'draw')
     length = get_argument(arguments, 'length')
@@ -88,6 +93,8 @@ class APIHandler(BaseHandler):
             self.set_query_cookie(self.request.arguments)
         elif method == 'submit_upload': 
             response = submit_upload(self.request.arguments, from_who=self.request.remote_ip)
+        elif method == 'report_past_query':
+            response = report_past_query(self.request.arguments, from_who=self.request.remote_ip)
         elif method == 'report_past_queries':
             response = report_past_queries(self.request.arguments, from_who=self.request.remote_ip)
         self.write(response)

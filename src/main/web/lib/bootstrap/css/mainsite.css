@@ -33,6 +33,10 @@ div.divResult_bad{
 	height: 25px;
 }
 
+div.divDetailedQuery td.tdColHeader {
+	font-size: smaller
+}
+
 table.tableButtonPanel td {
 	border-left: 0px;
 	padding: 4px;

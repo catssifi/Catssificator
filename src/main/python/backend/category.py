@@ -108,7 +108,8 @@ class Category(Loggable):
     def get_name(self, num, full_path=False):
         str = None
         try:
-            str=self._categoryNumToName[int(num)]
+            num=int(num)
+            str=self._categoryNumToName[num]
             if full_path and Config.Instance().get_mode() == 'prod':
                 while num in self._categoryToParentCategory:
                     if self._categoryToParentCategory[num] == 0:

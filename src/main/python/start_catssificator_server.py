@@ -68,6 +68,7 @@ class CCRequestHandler(BaseHTTPRequestHandler):
     response_str=''
     ticket_token=''
     category=''
+    _from_who=str(self.client_address[0])+':'+str(self.client_address[1])
     for field in form.keys():
       field_item = form[field]
       if field == 'ticket-token':
@@ -80,7 +81,7 @@ class CCRequestHandler(BaseHTTPRequestHandler):
     if ticket_token and category: #If it is a request ticket submission mode
         response_str = RequestTicketSystem.Instance().submit(ticket_token, category)
     elif query and category:
-        response_str = QueryProcessor().submit(query, category)
+        response_str = QueryProcessor().submit(query, category,from_who=_from_who)
     elif query:
         response_str = QueryProcessor().inquire(query, return_full_categories_if_not_found=True)
     else:

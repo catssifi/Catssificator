@@ -216,11 +216,17 @@ def rindex(str, s):
     except:
         return str       
 
-def extract_head_tail(str, n=10, max_intact=50):
+def extract_head_tail(str, n=50, max_intact=150):
     if len(str) < max_intact or n > len(str)/2:
         return str
     else:
         return str[0:n]+'..........'+str[len(str)-n:len(str)]
+
+def extract_head_tail_in_bulk(map_results, category_index):
+    if map_results:
+        for m in map_results:
+            m[category_index] = extract_head_tail(m[category_index]) 
+    return map_results
 
 def unescape(s):
     s = convert_to_str(s)

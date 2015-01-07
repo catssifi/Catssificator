@@ -175,6 +175,11 @@ class SQLDatabase(Loggable):
 
 	def _select_table(self, table_name, cols_str, id=None, limit=10, offset=0, ordered_column='', ordered_direction='', where_clause_sql=''):
 		ordered_by_sql_clause=build_ordered_by_sql_clause(ordered_column, ordered_direction)
+		if id:
+			if where_clause_sql:
+				where_clause_sql += ' and id=%s'%(id)
+			else:
+				where_clause_sql = ' where id=%s'%(id)
 		sql = '''select %s        from %s %s %s LIMIT %s OFFSET %s 
 		''' %(  cols_str, table_name, where_clause_sql, ordered_by_sql_clause,  limit,    offset)
 		#debug() 
