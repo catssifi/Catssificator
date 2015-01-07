@@ -245,6 +245,8 @@ def convert_draw_to_offset(draw, length):
         draw=int(draw)
     if is_string(length):
         length=int(length)
+    if draw > 1 and length > 10:    #some bugs in the datalength script..so i have to hardcore it
+        draw=draw-1
     return (draw) * length
 
 def convert_to_offset_to_draw(offset, length):
