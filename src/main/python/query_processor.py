@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # Copyright (c) 2014 Ken Wu
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -97,14 +98,10 @@ class QueryProcessor(Loggable):
             
         return response_str
     
-    def submit_in_chunk(self, queries, category_num, from_who=''):
+    def submit_in_chunk(self, queries_lists, category_num, from_who=''):
         response_str_list=[]
-        for query in queries:
-            if isinstance(query, list):
-                for q in query:
-                    response_str_list.append(self.submit(q, category_num, False))
-            else:
-                response_str_list.append(self.submit(query, category_num, False))
+        for queries in queries_lists:
+            response_str_list.append(self.submit(queries, category_num, False, from_who=from_who))
         return dumps(response_str_list)
     
     def process_query(self, query):

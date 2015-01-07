@@ -114,6 +114,7 @@ class FileUploader(Loggable):
         base_path = FileUploader.__pathify(FileUploader.__file_upload_base_dir)
         dir_path=base_path+'/'+token
         contents = read_contents_from_dir(dir_path)
+        contents = reduce((lambda x,y: x+'\n'+y), contents)
         return contents
     
     @staticmethod

@@ -82,11 +82,6 @@ def map_keys_to_the_values(values_without_key, keys):
         new_key_value_list.append(obj)
     return new_key_value_list
 
-def jsonize_str (map_results):
-    debug()
-    map_results_1 = str(map_results).replace('{', '').replace('}', '')
-    return map_results_1
-
 ##Cookie related ########################################
 def remove_non_valid_chars(line):
     if line:

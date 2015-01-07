@@ -48,9 +48,9 @@ def submit_upload(arguments, from_who=''):
     category_num = get_argument(arguments, 'categoryNum')
     tokens_str = get_argument(arguments, 'tokensStr')
     tokens = filter(lambda x: x, tokens_str.split(','))
-    queries = FileUploader.retrieve_contents_from_tokens(tokens)
+    queries_lists = FileUploader.retrieve_contents_from_tokens(tokens)
     _from_who=from_who
-    response_str = QueryProcessor().submit_in_chunk(queries, category_num, from_who=_from_who)
+    response_str = QueryProcessor().submit_in_chunk(queries_lists, category_num, from_who=_from_who)
     FileUploader.remove_tokens(tokens)
     return response_str
 
