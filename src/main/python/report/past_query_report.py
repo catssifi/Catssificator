@@ -19,7 +19,7 @@
 # Date: 2014 Dec - 2015
 
 from lib.loggable import Loggable
-from lib.utils import debug, convert_to_offset_to_draw, dumps, map_keys_to_the_values,jsonize_str, convert_UTC_time_zones_to_Local_time_zones_in_bulk, extract_head_tail_in_bulk
+from lib.utils import debug, convert_to_offset_to_draw, dumps, map_keys_to_the_values, convert_UTC_time_zones_to_Local_time_zones_in_bulk, extract_head_tail_in_bulk
 from backend.database import SQLDatabase,DB_Constants
 from backend.category import Category,replace_category_num_with_name
 

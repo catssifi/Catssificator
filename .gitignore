@@ -3,3 +3,4 @@
 *.log
 database.db
 *.project
+*.pydevproject

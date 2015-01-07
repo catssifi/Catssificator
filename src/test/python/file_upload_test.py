@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # Copyright (c) 2014 Ken Wu
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -24,6 +25,7 @@ sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/
 from backend.fileupload import FileUploader
 from lib.config import Config
 from lib.utils import is_path_exist, debug
+from query_processor import QueryProcessor
 import unittest
 
 class FileUploadTestHelper():
@@ -59,14 +61,22 @@ class FileUploadTest(unittest.TestCase):
 			deleted_sucess=True
 		self.assertEqual(deleted_sucess, True)
 	
-	def test_files_upload_and_retrieve_and_remove(self):
+	def test_files_upload_and_retrieve_and_remove_and_submit(self):
 		file_upload_1 = FileUploadTestHelper.create_fileupload_test_object_and_store(self._file_upload_path, 'test-2a.txt', 'this is the first second test 2...OKay?')
-		file_upload_2 = FileUploadTestHelper.create_fileupload_test_object_and_store(self._file_upload_path, 'test-2b.txt', 'this is the second second test 2...OKay?')
+		file_upload_2 = FileUploadTestHelper.create_fileupload_test_object_and_store(self._file_upload_path, 'test-2b.txt', 'The Galaxy S 5 Mini features a heart rate monitor and together with the S Health™ app, it makes tracking your health and fitness goals a lot easier. You can also use S Health to get on-demand nutritional information and the built-in pedometer helps track your steps and calories burned...')
+		file_upload_3 = FileUploadTestHelper.create_fileupload_test_object_and_store(self._file_upload_path, 'test-2c.txt', 'this is the third  test...OKay?')
 		tokens = []
 		tokens.append(file_upload_1.get_token())
 		tokens.append(file_upload_2.get_token())
+		tokens.append(file_upload_3.get_token())
 		queries = FileUploader.retrieve_contents_from_tokens(tokens)
 		self.assertNotEqual(queries, None)
 		FileUploader.remove_tokens(tokens)
+		
+		#Now i submitted it to the QueryProcessor()
+		response_str = QueryProcessor().submit_in_chunk(queries, "1")
+		#debug()
+		self.assertNotEqual(queries, None)
+		
 		
 		
