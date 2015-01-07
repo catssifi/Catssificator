@@ -40,3 +40,5 @@ cd ..
 cd ..
 rm -rf "$install_dir"
 pip install tornado
+
+easy_install --upgrade pytz
