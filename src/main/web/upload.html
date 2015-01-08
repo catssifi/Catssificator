@@ -93,14 +93,16 @@
 
       function textInputCategory_update() {
         //var q = $( "#textInputCategory" ).val()
-        var q = "Hello"
-        $.ajax({
-            url:"/api/suggest_categories", 
-            data: "q=" + q, success:
-            function(result) {
-              alert(result)
-            }
-          });
+        var q = $( "#textInputCategory" ).val()
+        if (q.length>1) {
+          $.ajax({
+              url:"/api/suggest_categories", 
+              data: "q=" + q, success:
+              function(result) {
+                alert(result)
+              }
+            });
+        }
       }
 
       function textInputCategory_click() {
