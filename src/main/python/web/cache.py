@@ -18,11 +18,17 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
+import os
 from lib.loggable import Loggable;
 from lib.singleton import Singleton
-from lib.utils import debug
+from lib.utils import debug, convert_datetime_to_s
+from datetime import datetime
 from backend.database import SQLDatabase
 
+time_since_restarted = convert_datetime_to_s(datetime.now()) + '+00:00 '+ os.environ['TZ']
+
+def get_server_time_since_last_restarted():
+        return time_since_restarted
 
 @Singleton
 class Cache(Loggable):
@@ -36,4 +42,3 @@ class Cache(Loggable):
     def get_submissions_in_the_past_n_days(self, back_days):
         count = self._sqldb.get_aggregate_submission_count(back_days=back_days)
         return count
-        

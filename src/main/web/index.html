@@ -92,18 +92,8 @@
 
   
   </head>
-  <body>
-  <div id="divMainFrame" class="divMainFrame">
-  <p align="left">
-  <img src="/static/lib/bootstrap/img/category-classificator.png">
-  </p>
   
-<ul class="nav nav-tabs">
-        <li class="active"><a href="/">Home</a></li>
-        <li><a href="upload.html">Upload Query</a></li>
-        <li><a href="reports.html">Reports</a></li>
-        <li><a href="about.html">About</a></li>
-    </ul>
+{% include "./static-pages/header.html" %}  
 
 <blockquote><h2 class="mainTitle">Welcome to Catssificator - beta version.<br/>It is an machine learning engine that predicts what categor(ies) that a given search query should belong to based on previous knowledges. </h2> </blockquote>
   
@@ -137,10 +127,4 @@
   </tbody>
   </table>
 
-
-          
-          </div>          
-        
-
-  </body>
-</html>
+{% include "./static-pages/footer.html" %}

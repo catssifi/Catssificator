@@ -18,8 +18,50 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 from yaml import load
+from lib.loggable import Loggable
 from lib.singleton import Singleton
-from lib.utils import get_base
+from lib.utils import get_base, real_lines, debug
+from os.path import abspath, join, dirname, isfile
+
+@Singleton
+class VersionHistory(Loggable):
+
+    _version_file = None
+    _current_version = None
+    _version_obj=list()
+
+    def __init__(self):
+        self._version_file = join(abspath(dirname('__file__')), 'doc/version.txt')
+        #self.info("-__file__:" + dirname(__file__)
+        self._parse()
+
+    def _parse(self):
+        #self.info("--_version_file:" + self._version_file)
+        lines = real_lines(self._version_file)
+        firstItem=True
+        
+        for line in lines:
+            content = line.split('|')
+            if firstItem:
+                self._current_version=content[0]
+                self.info("Running current_version:" + self._current_version)
+            self._version_obj.append({'version':content[0], 'date':content[1], 'log':content[2]})
+            firstItem=False
+
+    def get_current_version(self):
+        return self._current_version
+
+    def get_all_versions(self):
+        return self._version_obj
+
+### HERE IS THE VERSIONING AND CHANGES LOG RECORDs ###############
+_VERSION = VersionHistory.Instance().get_current_version()
+_ALL_VERSIONS=VersionHistory.Instance().get_all_versions()
+def get_software_version():
+    return _VERSION
+
+def get_all_versions():
+    return _ALL_VERSIONS;
 
 @Singleton
 class Config():

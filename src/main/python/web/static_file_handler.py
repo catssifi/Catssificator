@@ -26,12 +26,14 @@ import posixpath
 import os
 import mimetypes
 import pkg_resources
+from lib.utils import debug
 
 class StaticFileHandler(tornado.web.RequestHandler):
     
     def get_internal(self, pre_path, path):
         # Path checking taken from Flask's safe_join function:
         # https://github.com/mitsuhiko/flask/blob/1d55b8983/flask/helpers.py#L563-L587
+        #debug()
         path = posixpath.normpath(path)
         if os.path.isabs(path) or path.startswith(".."):
             return self.send_error(404)

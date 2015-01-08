@@ -37,7 +37,25 @@ div.divDetailedQuery td.tdColHeader {
 	font-size: smaller
 }
 
+div.divFooter {
+	font-size: smaller;
+	text-align: right;	
+}
+
+div.divFooter a{
+	font-color: #222222;
+	
+}
+
 table.tableButtonPanel td {
 	border-left: 0px;
 	padding: 4px;
+}
+
+table.tblStandard {
+	width: 100%;
+	cellspacing: 5;
+	cellspacing: 5;
+	margin-left: 10px;
+	margin-top: 10px;
 }

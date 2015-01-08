@@ -132,18 +132,7 @@
     <!-- end: for the datatable -->
 
   </head>
-  <body>
-  <div id="divMainFrame" class="divMainFrame">
-  <p align="left">
-  <img src="/static/lib/bootstrap/img/category-classificator.png">
-  </p>
-  
-<ul class="nav nav-tabs">
-        <li><a href="/">Home</a></li>
-        <li><a href="upload.html">Upload Query</a></li>
-        <li class="active"><a href="reports.html">Reports</a></li>
-        <li ><a href="about.html">About</a></li>
-    </ul>
+{% include "./static-pages/header.html" %} 
 
 <table width="100%">
 <tr>
@@ -215,9 +204,4 @@ Local time: <b><span id="divTime"></span></b>
   </table>
 
 
-         </div> 
-                    
-        
-
-  </body>
-</html>
+{% include "./static-pages/footer.html" %}

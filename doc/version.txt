@@ -1,0 +1,2 @@
+0.2 beta|2015-01-07|Fixed the upload page's bug and worked on the UI pages
+0.1 beta|2015-01-05|First beta release.  Made sure the site ran fine and all basic functionalities working. 

@@ -67,3 +67,8 @@ class AboutPageHandler(BaseHandler):
         #debug()
         _category_menu_in_html = UIBuilder.Instance().get_category_menu()
         self.render("about.html")
+    
+class ChangesPageHandler(BaseHandler):
+    def get(self):
+        _referer = self.request.headers['referer']
+        self.render("changes.html", referer=_referer)
