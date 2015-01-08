@@ -57,6 +57,9 @@ class Config():
     def get_version_file_path(self):
         return self._version_file_path
     
+    def set_version_file_path(self, p):
+        self._version_file_path = p
+    
     def get_yaml_data(self, keys, default=''):
         yaml_file=None
         try:
@@ -80,11 +83,18 @@ class VersionHistory(Loggable):
     _version_file = Config.Instance().get_version_file_path()
     _current_version = None
     _version_obj=list()
+    _initialized_sucessful = False
 
     def __init__(self):
-        pass
+        if not self._initialized_sucessful:
+            try:
+                self._parse()
+            except Exception as e:
+                self.warn('Initializing the VersionHistory failed..but it is okay please try again as it is not critical... ')
+                pass
+        self._initialized_sucessful = True
 
-    def parse(self):
+    def _parse(self):
         #self.info("--_version_file:" + self._version_file)
         lines = real_lines(self._version_file)
         firstItem=True

@@ -76,6 +76,10 @@ class CategoryTest(unittest.TestCase):
 		cat = self._category.get_full_name('Live%20Animals')
 		self.assertEqual(cat, 'Animals & Pet Supplies > Live Animals')
 
+	def test_category_suggestions(self):
+		suggestions = self._category.suggest_categories("mo")
+		self.assertEqual(suggestions, 'Mobile')
+
     
 	def tearDown(self):
 		pass

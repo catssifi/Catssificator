@@ -47,7 +47,10 @@ def suite():
     _test_dir=join(abspath(dirname('__file__')), '../../../config/test/')
     config_file = _test_dir + 'setup-test.yaml'
     Config.Instance().set_config_path(config_file)
-    Config.Instance().set_mode('prod')    
+    Config.Instance().set_mode('prod')
+    
+    Config.Instance().set_version_file_path(join(abspath(dirname('__file__')), '../../../doc/version.txt'))
+        
     _category=Category.Instance()
     cat_file = _test_dir +'test-category-production.txt'
     _category.set_path(cat_file)
