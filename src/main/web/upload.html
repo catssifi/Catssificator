@@ -276,18 +276,8 @@
   .ui-menu { width: 300px; }
   </style>
   </head>
-  <body>
-  <div id="divMainFrame" class="divMainFrame">
-  <p align="left">
-  <img src="/static/lib/bootstrap/img/category-classificator.png">
-  </p>
   
-<ul class="nav nav-tabs">
-        <li><a href="/">Home</a></li>
-        <li class="active"><a href="upload.html">Upload Query</a></li>
-        <li><a href="reports.html">Reports</a></li>
-        <li><a href="about.html">About</a></li>
-    </ul>
+{% include "./static-pages/header.html" %} 
   
 <blockquote>This page lets you assigns a category to a set of queries (either by typing it manually or uploading from a set of files)</blockquote>
 
@@ -403,6 +393,5 @@
   </tr>
   </tbody>
   </table>
-</div>
-  </body>
-</html>
+
+{% include "./static-pages/footer.html" %}

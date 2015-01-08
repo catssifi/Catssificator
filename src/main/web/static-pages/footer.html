@@ -1,0 +1,12 @@
+{% from web.cache import get_server_time_since_last_restarted %}
+{% from lib.config import get_software_version %}
+<hr/>
+{% if request.uri!='/changes.html' %}
+	<div class="divFooter">Catssificator v{{ get_software_version() }} | <a href="/changes.html">changes</a></div>
+{% end %}
+	<div class="divFooter">Server restarted since: {{ get_server_time_since_last_restarted() }}</div>
+
+
+</div>          
+</body>
+</html>

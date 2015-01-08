@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  	<meta charset="utf-8">
+    <title>Catssificator - contents management console @ changes page</title>
+    <link href="/static/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap styles -->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  	<link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
+  </head>
+
+{% include "./static-pages/header.html" %} 
+{% from lib.config import get_all_versions %}
+<table class="tblStandard">
+<tr>
+<td>
+<a href="{{ referer }}"><img src="/static/lib/bootstrap/img/back.png">go back</a>
+</br>
+</td>
+</tr>
+<tr>
+<td>
+<p>
+  <table class="tblStandard">
+    <tbody>
+      {% for version_obj in get_all_versions() %}
+      <tr>
+        <td>
+          <h2>{{ version_obj['version'] }}</h2>
+          <h4>{{ version_obj['log'] }}</h4>
+          Date: {{ version_obj['date'] }}
+        </td>
+      </tr>
+      {% end %}
+  </table>
+
+</td>
+</tr>
+</table>  
+
+{% include "./static-pages/footer.html" %}

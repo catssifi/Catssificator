@@ -31,7 +31,7 @@ from threading import Thread
 from query_processor import QueryProcessor
 from request_ticket_system import RequestTicketSystem
 from lib.utils import *
-from web.index_page_handler import HomePageHandler, UploadPageHandler, ReportsPageHandler, AboutPageHandler
+from web.index_page_handler import HomePageHandler, UploadPageHandler, ReportsPageHandler, AboutPageHandler,ChangesPageHandler
 from web.api_handler import APIHandler
 from web.fileupload_handler import FileUploadHandler
 from web.static_file_handler import StaticFileHandler
@@ -96,7 +96,8 @@ application = tornado.web.Application([
     (r"/", HomePageHandler),
     (r"/upload.html", UploadPageHandler),
     (r"/reports.html", ReportsPageHandler),
-    (r"/about.html", AboutPageHandler)
+    (r"/about.html", AboutPageHandler),
+    (r"/changes.html", ChangesPageHandler)
 ])
 
 
