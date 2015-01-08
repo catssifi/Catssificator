@@ -73,6 +73,11 @@ def report_past_queries(arguments, from_who=''):
                                    ordered_column_index=_ordered_column_index, ordered_direction=_ordered_direction).generate_report()
     return response_str
 
+def suggest_categories(arguments, from_who=''):
+    _q = get_argument(arguments, 'q')
+    res = Category.Instance().suggest_categories(_q)
+    return res
+
 class APIHandler(BaseHandler):
     
     def set_query_cookie(self, arguments):
@@ -98,6 +103,8 @@ class APIHandler(BaseHandler):
             response = report_past_query(self.request.arguments, from_who=self.request.remote_ip)
         elif method == 'report_past_queries':
             response = report_past_queries(self.request.arguments, from_who=self.request.remote_ip)
+        elif method == 'suggest_categories':
+            response = suggest_categories(self.request.arguments, from_who=self.request.remote_ip)
         self.write(response)
 
 class Web_Constans(object):

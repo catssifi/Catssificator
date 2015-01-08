@@ -59,3 +59,17 @@ table.tblStandard {
 	margin-left: 10px;
 	margin-top: 10px;
 }
+
+#textInputCategory {
+	width: 290px;
+}
+
+#tableSelectsAnCategory {
+
+}
+
+#tableSelectsAnCategory th, #tableSelectsAnCategory td{
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+}

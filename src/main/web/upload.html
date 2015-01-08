@@ -91,6 +91,23 @@
             });
       }
 
+      function textInputCategory_update() {
+        //var q = $( "#textInputCategory" ).val()
+        var q = "Hello"
+        $.ajax({
+            url:"/api/suggest_categories", 
+            data: "q=" + q, success:
+            function(result) {
+              alert(result)
+            }
+          });
+      }
+
+      function textInputCategory_click() {
+            $( "#textInputCategory" ).select();
+            
+      }
+
       function txtSearchQueryInput_click() {
 
             $( "#txtSearchQueryInput" ).select();
@@ -291,7 +308,23 @@
   <tbody>
   <tr>
     <td rowspan="6">
+          <table cellpadding="0" cellspacing="0" id="tableSelectsAnCategory">
+            <tr>
+              <td>
+                <input type="text" value="Type an category..." name="textInputCategory" id="textInputCategory" onclick="textInputCategory_click()" onkeyup="textInputCategory_update();" onblur="textInputCategory_update();"/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                  <div align="left" style="margin-top: -10px"> or Pick an category: </div> 
+              </td>
+            </tr>
+            <tr>
+              <td>
           {% raw (categories) %}
+              </td>
+            </tr>
+          </table>
     </td>
     <td width="99%">
                 <div class="module community-bulletin" style="width:90%; background-color:#F0F0F0">

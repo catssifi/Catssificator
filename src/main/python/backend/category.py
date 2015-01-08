@@ -129,6 +129,9 @@ class Category(Loggable):
     def is_this_category_num_parent(self, catetory_num):
         return catetory_num in self._all_category_nums_which_has_childs
     
+    def suggest_categories(self, q):
+        return '{}'
+    
     def get_categories_by_name(self, category_name):
     	cat_num = self.get_num(category_name)
     	if cat_num:
