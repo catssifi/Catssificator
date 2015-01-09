@@ -33,8 +33,11 @@ from time import gmtime, strftime
 import time
 from os import listdir
 from os.path import abspath, join, dirname, isfile
+from collections import Counter
 
 os.environ['TZ'] = 'UTC'
+STOP_WORDS=[u'&', u'i', u'me', u'my', u'myself', u'we', u'our', u'ours', u'ourselves', u'you', u'your', u'yours', u'yourself', u'yourselves', u'he', u'him', u'his', u'himself', u'she', u'her', u'hers', u'herself', u'it', u'its', u'itself', u'they', u'them', u'their', u'theirs', u'themselves', u'what', u'which', u'who', u'whom', u'this', u'that', u'these', u'those', u'am', u'is', u'are', u'was', u'were', u'be', u'been', u'being', u'have', u'has', u'had', u'having', u'do', u'does', u'did', u'doing', u'a', u'an', u'the', u'and', u'but', u'if', u'or', u'because', u'as', u'until', u'while', u'of', u'at', u'by', u'for', u'with', u'about', u'against', u'between', u'into', u'through', u'during', u'before', u'after', u'above', u'below', u'to', u'from', u'up', u'down', u'in', u'out', u'on', u'off', u'over', u'under', u'again', u'further', u'then', u'once', u'here', u'there', u'when', u'where', u'why', u'how', u'all', u'any', u'both', u'each', u'few', u'more', u'most', u'other', u'some', u'such', u'no', u'nor', u'not', u'only', u'own', u'same', u'so', u'than', u'too', u'very', u's', u't', u'can', u'will', u'just', u'don', u'should', u'now']
+STOP_WORDS_DICT = Counter(STOP_WORDS)
 
 def get_logger(name):
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -51,6 +54,19 @@ def is_string(x):
     return isinstance(x, basestring)
 
 ##Algorithms part ####################################
+def does_list_a_all_exist_in_list_b(a, b, f):
+    for x in a:
+        this_x_founded_in_b=False
+        for y in b:
+            if f(x,y):
+                this_x_founded_in_b=True
+        if not this_x_founded_in_b:
+            return False
+    return True
+
+def convert_list_to_dict(l):
+    return Counter(l)   #converts to dictionary
+
 def get_categories_with_n_highest_score(categories_org, n=1):
     log.debug("Getting categories: %s with %s highest score..." % (categories_org,n)) 
     categories=copy_dictionary(categories_org)
@@ -184,6 +200,9 @@ def dumps(data):
         
 ##Natural language processing part ########################################   
 stemmer = Stemmer.Stemmer('english')
+
+def get_all_stop_words():
+    return STOP_WORDS_DICT
 
 def stem_all_words(word_list):
     stemmed_words = list()

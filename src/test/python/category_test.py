@@ -72,14 +72,29 @@ class CategoryTest(unittest.TestCase):
 		#self.assertEqual(cats[2][1], 'Arts & Entertainment')
 	
 	def test_category_prod_mode_get_full_name(self):
-		#debug()
 		cat = self._category.get_full_name('Live%20Animals')
 		self.assertEqual(cat, 'Animals & Pet Supplies > Live Animals')
 
 	def test_category_suggestions(self):
-		suggestions = self._category.suggest_categories("mo")
-		self.assertEqual(suggestions, 'Mobile')
-
+		
+		suggestions = self._category.suggest_categories("sleepwear and lo")
+		self.assertEquals(len(suggestions), 5)	#make sure it returns as exactly 5 categories
+		suggestions = self._category.suggest_categories("lo sleepwear")
+		self.assertEquals(len(suggestions), 5)	#make sure it returns as exactly 5 categories
+		suggestions = self._category.suggest_categories("lo and sleep")
+		self.assertEquals(len(suggestions), 5)	#make sure it returns as exactly 5 categories
+		
+		suggestions = self._category.suggest_categories("Suits",limit=10)
+		self.assertEquals(len(suggestions), 10)	#make sure it returns more than 5
+				
+		suggestions = self._category.suggest_categories("mobile p")
+		self.assertGreater(len(suggestions), 5)	#make sure it returns more than 5 results
+		suggestions = self._category.suggest_categories("mobile phone")
+		self.assertGreater(len(suggestions), 5)	#make sure it returns more than 5 results
+		suggestions = self._category.suggest_categories("fuxk TOYS")
+		self.assertEqual(len(suggestions), 0)	#make sure it returns nothing
+		
+    
     
 	def tearDown(self):
 		pass
