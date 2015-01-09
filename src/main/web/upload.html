@@ -10,6 +10,7 @@
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
     <script src="/static/lib/bootstrap/js/main.js"></script>
+    <script type="text/javascript" src="/static/lib/bootstrap/js/autocomplete/jquery.autocomplete.js"></script>
   	<script>
       $(function() {
         $( "#category_menu" ).menu();
@@ -22,6 +23,14 @@
           }
         }
         });
+
+        $('#textInputCategory').autocomplete({
+        serviceUrl: '/api/suggest_categories',
+          onSelect: function (suggestion) {
+            alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+          }
+        });
+        
       });
 
       $( "#txtSearchQueryInput" ).bind('input propertychange', function() {
@@ -93,6 +102,7 @@
 
       function textInputCategory_update() {
         //var q = $( "#textInputCategory" ).val()
+        /*
         var q = $( "#textInputCategory" ).val()
         if (q.length>1) {
           $.ajax({
@@ -103,7 +113,10 @@
               }
             });
         }
+        */
       }
+
+
 
       function textInputCategory_click() {
             $( "#textInputCategory" ).select();

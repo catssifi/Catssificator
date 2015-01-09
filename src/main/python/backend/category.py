@@ -23,7 +23,7 @@ from os.path import abspath, join, dirname
 from lib.loggable import Loggable
 from lib.singleton import Singleton
 from lib.config import Config
-from lib.utils import rindex, real_lines, unescape, debug
+from lib.utils import rindex, real_lines, unescape, debug,get_all_stop_words,does_list_a_all_exist_in_list_b,dumps
 from backend.database import SQLDatabase
 import string
 
@@ -129,8 +129,53 @@ class Category(Loggable):
     def is_this_category_num_parent(self, catetory_num):
         return catetory_num in self._all_category_nums_which_has_childs
     
-    def suggest_categories(self, q):
-        return '{}'
+    #category_item will be key-value pairs from the _categoryNameToNum.items()
+    def _create_suggestion_category_item(self, category_item):
+        full_category = self.get_name(category_item[1], full_path=True)
+        return {'category': category_item[0], 'category-id': category_item[1], 'full-category': full_category}
+    
+    def suggest_categories(self, q, limit=10):
+        suggestions = list()
+        q_len = len(q)
+        q = q.lower()
+        q_list=q.split()
+        q_list=filter((lambda x: x not in get_all_stop_words() and len(x)>1), q_list)
+        for cat in self._categoryNameToNum.items():
+            cat_word_list = filter((lambda x: x not in get_all_stop_words()), cat[0].split())
+            if does_list_a_all_exist_in_list_b(q_list, cat_word_list, (lambda x, y: x == y[0:len(x)].lower())):
+                suggestion = self._create_suggestion_category_item(cat)
+                suggestions.append(suggestion)
+                if len(suggestions)>=limit:
+                    return suggestions
+                #Get all sub-categories too
+                sub_categories = self.get_categories(cat[1])
+                for sub_cat in sub_categories:
+                    suggestion = self._create_suggestion_category_item(sub_cat)
+                    suggestions.append(suggestion)
+                    if len(suggestions)>=limit:
+                        return suggestions
+        
+        mock_up = {
+        "query": "Unit",
+        "suggestions": [
+            { "value": "United Arab Emirates", "data": "AE" },
+            { "value": "United Kingdom",       "data": "UK" },
+            { "value": "United States",        "data": "US" }
+        ]
+    }
+        return dumps(mock_up)
+        #return dumsuggestions
+    
+    def get_category_nums_from_parent(self, parent_category_num):
+        #self.debug('get_category_nums_from_parent: %s' % (parent_category_num))
+        if parent_category_num in self._parent_child_category_nums:
+            return self._parent_child_category_nums[parent_category_num]
+        else:
+            res = None
+            if parent_category_num in self._categoryToParentCategory.values():
+                res = map((lambda x: x[0]), filter((lambda x: x[1]==parent_category_num), self._categoryToParentCategory.items()))
+            self._parent_child_category_nums[parent_category_num]=res
+            return res
     
     def get_categories_by_name(self, category_name):
     	cat_num = self.get_num(category_name)
@@ -153,17 +198,6 @@ class Category(Loggable):
                 return all_category_names
             else:
                 return {}
-
-    def get_category_nums_from_parent(self, parent_category_num):
-        #self.debug('get_category_nums_from_parent: %s' % (parent_category_num))
-        if parent_category_num in self._parent_child_category_nums:
-            return self._parent_child_category_nums[parent_category_num]
-        else:
-            res = None
-            if parent_category_num in self._categoryToParentCategory.values():
-                res = map((lambda x: x[0]), filter((lambda x: x[1]==parent_category_num), self._categoryToParentCategory.items()))
-            self._parent_child_category_nums[parent_category_num]=res
-            return res
 
     def get_categories_desc(self):
         if not self._ALL_CATEGORIES_DESC :
