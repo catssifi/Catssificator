@@ -26,6 +26,7 @@ import Stemmer
 import string
 import random
 import sys
+import operator
 from datetime import datetime
 from pytz import timezone
 import pytz
@@ -54,6 +55,15 @@ def is_string(x):
     return isinstance(x, basestring)
 
 ##Algorithms part ####################################
+
+#return from 0 to 100 in two decimals representing the percentage
+def get_percentize(portion, total, round_to=2):
+    #debug()
+    portion=float(portion)
+    total=float(total)
+    divide_value = round(portion/total, round_to)
+    return (divide_value * 100.0)
+    
 def does_list_a_all_exist_in_list_b(a, b, f):
     for x in a:
         this_x_founded_in_b=False
@@ -79,6 +89,11 @@ def get_categories_with_n_highest_score(categories_org, n=1):
         del categories[k]
     return indcies
 
+def get_sorted_turple_on_dict_by_value(d, reverse_the_result=False):
+    sorted_x = sorted(d.items(), key=operator.itemgetter(1))
+    if reverse_the_result:
+        sorted_x=sorted_x.reverse()
+    return sorted_x
 def generate_token(len):
     datetimestr=get_datetime()
     #pydevd.settrace()
@@ -97,7 +112,6 @@ def map_keys_to_the_values(values_without_key, keys):
             i+=1
         new_key_value_list.append(obj)
     return new_key_value_list
-
 ##Cookie related ########################################
 def remove_non_valid_chars(line):
     if line:
@@ -189,6 +203,10 @@ def read_contents_from_dir(dir_p):
         lines=reduce(lambda x,y: x+y,lines_list)
         contents.append(lines)
     return contents
+        
+##html part ########################################
+def enclose_tag (htm, tag):
+    return '<%s>%s</%s>'%(tag, htm, tag) 
         
 ##Json part ########################################   
 def get_json_value(json_str, field_name):

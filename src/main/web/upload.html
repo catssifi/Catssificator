@@ -268,7 +268,8 @@
           refresh_ui_buttons_panel_2(pointer_events_value, opacity);
 
           //Turns on the category menu
-          refresh_ui_category_menu(getPointerEventsValueOn(), getOpacityOn())
+          refresh_ui_category_input(getPointerEventsValueOn(), getOpacityOn())
+          refresh_ui_category_menu(getPointerEventsValueOff(), getOpacityOff())
         } else {  //An category has been selected
           refresh_ui_search_query_input(pointer_events_value, opacity);
 
@@ -282,6 +283,10 @@
         } 
       }
 
+      function refresh_ui_category_input(p1, p2) {
+          $( "#textInputCategory" ).css("pointer-events", p1).delay(10);
+          $( "#textInputCategory" ).css("opacity", p2).delay(10);
+      }
       function refresh_ui_category_menu(p1, p2) {
           $( "#category_menu" ).css("pointer-events", p1).delay(10);
           $( "#category_menu" ).css("opacity", p2).delay(10);
@@ -312,6 +317,16 @@
          $( "#divButtonsPanel_2_b" ).css("pointer-events", p1);
          $( "#divButtonsPanel_2_b" ).css("opacity", p2);
          
+      }
+
+      function toogleBetweenCategoryInputAndMenu(source) {
+        if(source==1) {
+          refresh_ui_category_menu(getPointerEventsValueOff(), getOpacityOff());
+          refresh_ui_category_input(getPointerEventsValueOn(), getOpacityOn());
+        } else {
+          refresh_ui_category_menu(getPointerEventsValueOn(), getOpacityOn());
+          refresh_ui_category_input(getPointerEventsValueOff(), getOpacityOff());
+        }
       }
 
       function toogleBetweenPanels(source) {
@@ -378,8 +393,9 @@
           <table cellpadding="0" cellspacing="0" id="tableSelectsAnCategory">
             <tr>
               <td>
+              <div id="divCategoryInput" onmouseover="toogleBetweenCategoryInputAndMenu(1)">
                 <input id="textInputCategory" type="text" name="country" onclick="textCategoryInput_click()" autocomplete="off" onkeyup="txtCategoryInput_update();" onblur="txtCategoryInput_update();">
-                
+              </div>  
               </td>
             </tr>
             <tr>
@@ -389,7 +405,9 @@
             </tr>
             <tr>
               <td>
+              <div id="divCategoryMenu" onmouseover="toogleBetweenCategoryInputAndMenu(2)">
           {% raw (categories) %}
+            </div>
               </td>
             </tr>
           </table>
