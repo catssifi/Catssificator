@@ -63,18 +63,16 @@ def report_past_queries(arguments, from_who=''):
     _draw = get_argument(arguments, 'draw')
     length = get_argument(arguments, 'length')
     _offset=int(get_argument(arguments, 'start')[0])
-    #debug()
     _offset=convert_draw_to_offset(_offset, length)
     _ordered_column_index = int(get_argument(arguments, 'order[0][column]')[0])
     _ordered_direction = get_argument(arguments, 'order[0][dir]')
     _from_who=from_who
-    #debug()
     response_str = PastQueryReport(limit=length, offset=_offset, draw=_draw, 
                                    ordered_column_index=_ordered_column_index, ordered_direction=_ordered_direction).generate_report()
     return response_str
 
 def suggest_categories(arguments, from_who=''):
-    _q = get_argument(arguments, 'q')
+    _q = get_argument(arguments, 'query')
     res = Category.Instance().suggest_categories(_q)
     return res
 

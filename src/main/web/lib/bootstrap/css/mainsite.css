@@ -60,8 +60,10 @@ table.tblStandard {
 	margin-top: 10px;
 }
 
+.ui-menu { width: 400px; }
+
 #textInputCategory {
-	width: 290px;
+	width: 388px;
 }
 
 #tableSelectsAnCategory {

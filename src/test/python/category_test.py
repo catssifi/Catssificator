@@ -76,23 +76,22 @@ class CategoryTest(unittest.TestCase):
 		self.assertEqual(cat, 'Animals & Pet Supplies > Live Animals')
 
 	def test_category_suggestions(self):
-		
 		suggestions = self._category.suggest_categories("sleepwear and lo")
-		self.assertEquals(len(suggestions), 5)	#make sure it returns as exactly 5 categories
+		self.assertEquals(len(suggestions['suggestions']), 5)	#make sure it returns as exactly 5 categories
 		suggestions = self._category.suggest_categories("lo sleepwear")
-		self.assertEquals(len(suggestions), 5)	#make sure it returns as exactly 5 categories
+		self.assertEquals(len(suggestions['suggestions']), 5)	#make sure it returns as exactly 5 categories
 		suggestions = self._category.suggest_categories("lo and sleep")
-		self.assertEquals(len(suggestions), 5)	#make sure it returns as exactly 5 categories
+		self.assertEquals(len(suggestions['suggestions']), 5)	#make sure it returns as exactly 5 categories
 		
 		suggestions = self._category.suggest_categories("Suits",limit=10)
-		self.assertEquals(len(suggestions), 10)	#make sure it returns more than 5
+		self.assertEquals(len(suggestions['suggestions']), 10)	#make sure it returns more than 5
 				
 		suggestions = self._category.suggest_categories("mobile p")
-		self.assertGreater(len(suggestions), 5)	#make sure it returns more than 5 results
+		self.assertGreater(len(suggestions['suggestions']), 5)	#make sure it returns more than 5 results
 		suggestions = self._category.suggest_categories("mobile phone")
-		self.assertGreater(len(suggestions), 5)	#make sure it returns more than 5 results
+		self.assertGreater(len(suggestions['suggestions']), 5)	#make sure it returns more than 5 results
 		suggestions = self._category.suggest_categories("fuxk TOYS")
-		self.assertEqual(len(suggestions), 0)	#make sure it returns nothing
+		self.assertEqual(len(suggestions['suggestions']), 0)	#make sure it returns nothing
 		
     
     

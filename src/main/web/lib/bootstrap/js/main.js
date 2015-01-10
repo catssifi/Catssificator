@@ -50,7 +50,7 @@ $(function () {
   } //end if
 });
 
-function parseJson(j) {
+function parseJson_v2(j) {
   return jQuery.parseJSON(j);
 }
 

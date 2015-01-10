@@ -22,7 +22,7 @@ from sets import Set
 from os.path import abspath, join, dirname
 from lib.loggable import Loggable
 from lib.singleton import Singleton
-from lib.config import Config
+from lib.config import Config,get_txtCategoryInput_empty_string
 from lib.utils import rindex, real_lines, unescape, debug,get_all_stop_words,does_list_a_all_exist_in_list_b,dumps
 from backend.database import SQLDatabase
 import string
@@ -131,39 +131,46 @@ class Category(Loggable):
     
     #category_item will be key-value pairs from the _categoryNameToNum.items()
     def _create_suggestion_category_item(self, category_item):
-        full_category = self.get_name(category_item[1], full_path=True)
-        return {'category': category_item[0], 'category-id': category_item[1], 'full-category': full_category}
+        cat_num=category_item[0]
+        full_category = self.get_name(cat_num, full_path=True)
+        #return {'category': category_item[0], 'category-id': category_item[1], 'full-category': full_category}
+        return {'value': full_category, 'data': cat_num }
     
-    def suggest_categories(self, q, limit=10):
+    def suggest_categories(self, q, min_length_of_q=2, limit=10):
         suggestions = list()
         q_len = len(q)
+        if q_len < min_length_of_q or q==get_txtCategoryInput_empty_string():
+            return dumps({"query": "Unit", "suggestions": [{"value":"", "data":""}]})
         q = q.lower()
         q_list=q.split()
         q_list=filter((lambda x: x not in get_all_stop_words() and len(x)>1), q_list)
-        for cat in self._categoryNameToNum.items():
-            cat_word_list = filter((lambda x: x not in get_all_stop_words()), cat[0].split())
+        finished_in_loop=False
+        suggested_cat_num_already = {}
+        for cat in self._categoryNumToName.items():
+            if cat[0] in suggested_cat_num_already:
+                continue
+            cat_word_list = filter((lambda x: x not in get_all_stop_words()), cat[1].split())
             if does_list_a_all_exist_in_list_b(q_list, cat_word_list, (lambda x, y: x == y[0:len(x)].lower())):
                 suggestion = self._create_suggestion_category_item(cat)
                 suggestions.append(suggestion)
+                suggested_cat_num_already[cat[0]]=True
                 if len(suggestions)>=limit:
-                    return suggestions
+                    finished_in_loop=True
+                    break
                 #Get all sub-categories too
-                sub_categories = self.get_categories(cat[1])
+                sub_categories = self.get_categories(cat[0])
                 for sub_cat in sub_categories:
                     suggestion = self._create_suggestion_category_item(sub_cat)
                     suggestions.append(suggestion)
+                    suggested_cat_num_already[sub_cat[0]]=True
                     if len(suggestions)>=limit:
-                        return suggestions
+                        finished_in_loop=True
+                        break
+            if finished_in_loop:
+                break
         
-        mock_up = {
-        "query": "Unit",
-        "suggestions": [
-            { "value": "United Arab Emirates", "data": "AE" },
-            { "value": "United Kingdom",       "data": "UK" },
-            { "value": "United States",        "data": "US" }
-        ]
-    }
-        return dumps(mock_up)
+        response_json = {"query": "Unit", "suggestions": suggestions }
+        return response_json
         #return dumsuggestions
     
     def get_category_nums_from_parent(self, parent_category_num):

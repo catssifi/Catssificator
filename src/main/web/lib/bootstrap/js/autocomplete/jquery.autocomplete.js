@@ -305,9 +305,9 @@
             }
 
             // -2px to account for suggestions border.
-            if (that.options.width === 'auto') {
-                styles.width = (that.el.outerWidth() - 2) + 'px';
-            }
+            //if (that.options.width === 'auto') {
+            //    styles.width = (that.el.outerWidth() - 2) + 'px';
+            //}
 
             $container.css(styles);
         },
@@ -613,7 +613,8 @@
         },
 
         suggest: function () {
-            if (this.suggestions.length === 0) {
+            if ((this.suggestions.length == 1 && this.suggestions[0].value.length==0) 
+                || (this.suggestions.length == 0)) {
 				if (this.options.showNoSuggestionNotice) {
 					this.noSuggestions();
 				} else {
@@ -657,11 +658,13 @@
 
             // Build suggestions inner HTML:
             $.each(that.suggestions, function (i, suggestion) {
-                if (groupBy){
-                    html += formatGroup(suggestion, value, i);
-                }
+                if (suggestion.value.length>0) {
+                    if (groupBy){
+                        html += formatGroup(suggestion, value, i);
+                    }
 
-                html += '<div class="' + className + '" data-index="' + i + '">' + formatResult(suggestion, value) + '</div>';
+                    html += '<div class="' + className + '" data-index="' + i + '">' + formatResult(suggestion, value) + '</div>';
+                }
             });
 
             this.adjustContainerWidth();
@@ -707,19 +710,7 @@
         },
 
         adjustContainerWidth: function() {
-            var that = this,
-                options = that.options,
-                width,
-                container = $(that.suggestionsContainer);
-
-            // If width is auto, adjust width before displaying suggestions,
-            // because if instance was created before input had width, it will be zero.
-            // Also it adjusts if input width has changed.
-            // -2px to account for suggestions border.
-            if (options.width === 'auto') {
-                width = that.el.outerWidth() - 2;
-                container.width(width > 0 ? width : 300);
-            }
+           
         },
 
         findBestHint: function () {

@@ -7,9 +7,11 @@
     <!-- Bootstrap styles -->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
   	<link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
+    <link href="/static/lib/bootstrap/css/autocomplete.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
     <script src="/static/lib/bootstrap/js/main.js"></script>
+    <script type="text/javascript" src="/static/lib/bootstrap/js/autocomplete/jquery.mockjax.js"></script>
     <script type="text/javascript" src="/static/lib/bootstrap/js/autocomplete/jquery.autocomplete.js"></script>
   	<script>
       $(function() {
@@ -24,11 +26,28 @@
         }
         });
 
-        $('#textInputCategory').autocomplete({
+        $('#textInputCategory').devbridgeAutocomplete({
         serviceUrl: '/api/suggest_categories',
           onSelect: function (suggestion) {
-            alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
-          }
+            //alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+          },
+          lookupFilter: function(suggestion, originalQuery, queryLowerCase) {
+            var re = new RegExp('\\b' + $.Autocomplete.utils.escapeRegExChars(queryLowerCase), 'gi');
+            return re.test(suggestion.value);
+          },
+          onSelect: function(suggestion) {
+            //$('#selction-ajax').html('You selected: ' + suggestion.value + ', ' + suggestion.data);
+              $("#divSelectedCategoryDesc").html(decorateWithHeader(suggestion.value, 4));
+              $("#hidSelectedCategory")[0].value = suggestion.value;
+              $("#hidSelectedCategoryNum")[0].value = suggestion.data
+              refresh_ui();
+          },
+          onHint: function (hint) {
+            $('#textInputCategory-x').val(hint);
+          },
+          onInvalidateSelection: function() {
+            //$('#selction-ajax').html('You selected: none');
+          } 
         });
         
       });
@@ -40,6 +59,8 @@
       $( "#butReset" ).click(function() {
         butReset_click();
       });
+
+      //$('#textInputCategory').autocomplete('disable');
 
       function issueAjaxCallOnSelectedCategory_and_refreshUI (selectedCategory, selectedCatNum) {
         //alert(selectedName)
@@ -69,7 +90,8 @@
             url:"/api/submit_query", 
             data: "categoryNum=" + selectedCatNum + "&query=" + encodeURIComponent(query) + "&token="+token, success:
             function(result) {
-              j = parseJson(result);
+              //j = parseJson_v2(result);
+              var j=result
               resultMsg = getMessagesFromJson(j)
               {% if token %}
                 resultMsg += '<br/>You can click <a href="/">here</a> to go back'
@@ -89,7 +111,8 @@
             url:"/api/submit_upload", 
             data: "categoryNum=" + selectedCatNum + "&tokensStr=" + encodeURIComponent(tokensStr), success:
             function(result) {
-              j = parseJson(result);
+              //j = parseJson_v2(result);
+              var j = result
               resultMsg = getMessagesFromJson(j)
               resultMsg=decorateWithSucessfulMessage(resultMsg)
               displayResultMessage("#divFileUploadResult", resultMsg)
@@ -100,8 +123,35 @@
             });
       }
 
-      function textInputCategory_update() {
-        //var q = $( "#textInputCategory" ).val()
+      function set_txtCategoryInput_empty() {
+        $( "#textInputCategory" ).val(get_txtCategoryInput_empty_string())
+      }
+
+      function get_txtCategoryInput_empty_string() {
+        //PLEASE DON'T CHANGE THE FOLLOWING STRING
+        //  -- Please enter a category...
+        //IF YOU DO, REMEMBER TO CHANGE THE SERVER SIDE END TOO
+        //
+        return 'Please enter a category...'
+      }
+
+      function is_txtCategoryInput_empty() {
+        var q = $( "#textInputCategory" ).val()
+        return (q.length<=1) || (q == get_txtCategoryInput_empty_string()) 
+
+      }
+
+      function txtCategoryInput_update() {
+        
+        if (!is_txtCategoryInput_empty()) {
+          $('#textInputCategory').autocomplete('enable');
+          //$('#autocomplete-suggestions').css({visibility: 'visible'})
+          //$('#autocomplete-suggestions').css({display: 'block'})
+          //console.log('ON ');
+        } else {
+          $('#textInputCategory').autocomplete('disable');
+          //console.log('OFF');
+        }
         /*
         var q = $( "#textInputCategory" ).val()
         if (q.length>1) {
@@ -118,8 +168,9 @@
 
 
 
-      function textInputCategory_click() {
+      function textCategoryInput_click() {
             $( "#textInputCategory" ).select();
+            txtCategoryInput_update();
             
       }
 
@@ -175,6 +226,7 @@
         $("#divSelectedCategoryDesc").html(decorateWithHeader('--', 4));
         $( "#hidSelectedCategory")[0].value="";  //reset the hidden controlling field
         $( "#hidSelectedCategoryNum")[0].value="";  //reset the hidden controlling field
+        set_txtCategoryInput_empty();
         setTxtSearchQueryInputToEmpty();
         refresh_ui();
       }
@@ -300,13 +352,13 @@
           } else {
             refresh_ui();
           }
+
+          $('#textInputCategory').autocomplete('disable');
+          set_txtCategoryInput_empty()
+
       });
 
   </script>
-
-  <style>
-  .ui-menu { width: 300px; }
-  </style>
   </head>
   
 {% include "./static-pages/header.html" %} 
@@ -326,7 +378,8 @@
           <table cellpadding="0" cellspacing="0" id="tableSelectsAnCategory">
             <tr>
               <td>
-                <input type="text" value="Type an category..." name="textInputCategory" id="textInputCategory" onclick="textInputCategory_click()" onkeyup="textInputCategory_update();" onblur="textInputCategory_update();"/>
+                <input id="textInputCategory" type="text" name="country" onclick="textCategoryInput_click()" autocomplete="off" onkeyup="txtCategoryInput_update();" onblur="txtCategoryInput_update();">
+                
               </td>
             </tr>
             <tr>
@@ -441,5 +494,9 @@
   </tr>
   </tbody>
   </table>
+
+  <div class="autocomplete-suggestions" style="position: absolute; display: none; max-height: 300px; z-index: 9999;"></div>
+  <div class="autocomplete-suggestions" style="position: absolute; display: none; max-height: 300px; z-index: 9999;"></div>
+<div class="autocomplete-suggestions" style="position: absolute; display: none; max-height: 300px; z-index: 9999;"></div>
 
 {% include "./static-pages/footer.html" %}
