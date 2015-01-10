@@ -121,3 +121,8 @@ def get_software_version():
 
 def get_all_versions():
     return _ALL_VERSIONS;
+
+#This is for the client html hardcode message
+_txt_category_input_empty_str = 'Please enter a category...'
+def get_txtCategoryInput_empty_string():
+    return _txt_category_input_empty_str
