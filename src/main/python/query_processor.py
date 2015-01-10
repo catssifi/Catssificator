@@ -23,9 +23,10 @@ import operator
 from request_ticket_system import RequestTicketSystem
 from backend.datastore_factory import DataStoreFactory
 from lib.loggable import Loggable
-from lib.utils import stem_all_words, dumps, debug, extract_head_tail,get_all_stop_words
+from lib.utils import stem_all_words, dumps, debug, extract_head_tail,get_all_stop_words,get_sorted_turple_on_dict_by_value,get_percentize, enclose_tag
 from backend.category import Category
 from backend.database import SQLDatabase
+from web.constants import API_Constants
 
 class QueryProcessor(Loggable):
     _datastore = None
@@ -40,6 +41,7 @@ class QueryProcessor(Loggable):
     def inquire(self, query, return_full_categories_if_not_found=False):
         words = self.process_query(query);
         category_score = {}
+        response_obj={}
         for word in words:
             word_categories=self._datastore.get(word, with_score=True)
             if word_categories and len(word_categories) > 0:
@@ -55,14 +57,17 @@ class QueryProcessor(Loggable):
             category_name = Category.Instance().get_name(category_num)
             category_full_name = Category.Instance().get_full_name(category_num)
             message = 'The query \'<b>%s</b>\' most likely belongs to: \'<b>%s</b>\'' %(extract_head_tail(query), category_name)
-            response_str = dumps({"result":"yes", "category":category_name, "category-full-name": category_full_name, "message": message})
+            message = enclose_tag(message, 'h3')
+            category_score_list = self.convert_to_histogram_obj(category_score)
+            response_obj = {"result":"yes", "category":category_name, "category-full-name": category_full_name, "message": message
+                            , API_Constants.query_category_histogram: category_score_list}
         else:
             message='Unfortunately, no category was found under the search query:%s ...' % (query)
             ticket_token=RequestTicketSystem.Instance().generate_category_ticket(query, words)
             if return_full_categories_if_not_found:
                 message+='Please pick a category it should belong to: ' + Category.Instance().get_categories_desc()
-            response_str = dumps({"result":"no", "message":message, "ticket-token":ticket_token})
-        return response_str
+            response_obj = {"result":"no", "message":message, "ticket-token":ticket_token}
+        return response_obj
     
     # parameter: category can be category number or category name
     def submit(self, query, category, dumps_it=True, token=None, from_who=''):
@@ -112,3 +117,19 @@ class QueryProcessor(Loggable):
         words = query.split( );
         words = map(lambda x: x.lower().strip(), words)
         return words
+    
+    def convert_to_histogram_obj(self, category_score):
+        sorted_category_score=get_sorted_turple_on_dict_by_value(category_score)
+        #debug()
+        total_score=category_score.values()[0]
+        if len(category_score) > 1:
+            total_score=reduce(lambda x, y: x[1] + y[1], sorted_category_score)
+        new_category_score={}
+        new_category_score_list=list()
+        for c_s in category_score.items():
+            percentize = get_percentize(c_s[1], total_score)
+            new_category_score = (c_s[0], { "percentize": str(percentize), "full-category-name": Category.Instance().get_full_name(c_s[0])})
+            new_category_score_list.append(new_category_score)
+        return new_category_score_list
+        
+        
