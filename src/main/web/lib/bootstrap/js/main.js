@@ -50,8 +50,16 @@ $(function () {
   } //end if
 });
 
+
 function parseJson_v2(j) {
-  return jQuery.parseJSON(j);
+  return parseJson(j)
+}
+function parseJson(j) {
+  try {
+    return jQuery.parseJSON(j);
+  } catch (err) {
+    return j
+  }
 }
 
 function getMessagesFromJson(j) {
