@@ -31,7 +31,8 @@ class FileDataStore(DataStore):
             self._filename = file_name
         #self.info("Setting the filename: %s" % self._filename)
     
-    def store(self, word, *args_category_num, **kwargs_category_num):
+    #count_score - defaults should be 1.0 
+    def store(self, word, count_score=1.0, category_nums=[]):
         d = shelve.open(self._filename, writeback=True)
         try:
             stemmed_word = stem_word(word)
@@ -41,12 +42,12 @@ class FileDataStore(DataStore):
                 dd = {}
                 d[stemmed_word] = dd
                 
-            for cat_num in args_category_num:
+            for cat_num in category_nums:
                 cat_num = int(cat_num) if is_string(cat_num) else cat_num
                 if cat_num in dd :
-                    dd[cat_num] += 1
+                    dd[cat_num] += count_score
                 else:
-                    dd[cat_num] = 1
+                    dd[cat_num] = count_score
         finally:
             d.close()
             
@@ -66,18 +67,21 @@ class FileDataStore(DataStore):
         else:
             return None
     
-    def get(self, word, category_num=None, with_score=False):
+    def get(self, word, category_num=None, with_score=False, highest_score_only=False):
         categories = self.get_by_word_only(word) 
         if categories:
             if category_num and category_num in categories:
                 return categories[category_num]
             else:
                 #returns the category_num with highest score
-                results=self.get_categories_with_n_highest_score(categories)
-                if with_score:
-                    return results
+                if highest_score_only:
+                    results=self.get_categories_with_n_highest_score(categories)
+                    if with_score:
+                        return results
+                    else:
+                        return map(lambda r: r[0], results)
                 else:
-                    return map(lambda r: r[0], results)
+                    return categories
         else:
             return None
     

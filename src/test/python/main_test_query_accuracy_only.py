@@ -29,7 +29,7 @@ from backend.database import SQLDatabase
 from backend.category import Category
 from lib.config import Config
 from query_processor import QueryProcessor 
-from testcase.query_processor_test import QueryProcessorTest
+from testcase.query_accuracy_test import QueryAccuracyTest
 
 
 def suite():
@@ -54,7 +54,7 @@ def suite():
         
     
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(QueryProcessorTest))
+    test_suite.addTest(unittest.makeSuite(QueryAccuracyTest))
     return test_suite
 
 mySuit=suite()

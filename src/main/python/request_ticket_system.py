@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from collections import OrderedDict
 from lib.loggable import Loggable
 from lib.singleton import Singleton
-from lib.utils import generate_token, debug
+from lib.utils import generate_token, debug,divide_a_by_b
 from backend.datastore_factory import DataStoreFactory
 
 @Singleton
@@ -45,9 +45,11 @@ class RequestTicketSystem(Loggable):
         with self._lock:
             (query, words, time_ticket_created) = self._tickets[ticket_token]
             del self._tickets[ticket_token]
-        if words and len(words)>0:
+        len_words=len(words)
+        word_strength=divide_a_by_b(1, len_words)
+        if words and len_words>0:
             for word in words:
-                self._datastore.store(word, category_num)
+                self._datastore.store(word, word_strength, [category_num])
     
     def generate_category_ticket(self, query, words):
         ticket_token= generate_token(self._token_len)

@@ -57,11 +57,13 @@ def is_string(x):
 ##Algorithms part ####################################
 
 #return from 0 to 100 in two decimals representing the percentage
-def get_percentize(portion, total, round_to=2):
-    #debug()
+def divide_a_by_b(portion, total, round_to=2):
     portion=float(portion)
     total=float(total)
-    divide_value = round(portion/total, round_to)
+    return round(portion/total, round_to)
+    
+def get_percentize(portion, total, round_to=2):
+    divide_value = divide_a_by_b(portion, total, round_to)
     return (divide_value * 100.0)
     
 def does_list_a_all_exist_in_list_b(a, b, f):
@@ -90,9 +92,7 @@ def get_categories_with_n_highest_score(categories_org, n=1):
     return indcies
 
 def get_sorted_turple_on_dict_by_value(d, reverse_the_result=False):
-    sorted_x = sorted(d.items(), key=operator.itemgetter(1))
-    if reverse_the_result:
-        sorted_x=sorted_x.reverse()
+    sorted_x = sorted(d.items(), key=operator.itemgetter(1), reverse=reverse_the_result)
     return sorted_x
 def generate_token(len):
     datetimestr=get_datetime()

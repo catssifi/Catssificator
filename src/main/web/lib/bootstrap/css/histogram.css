@@ -71,11 +71,11 @@ body {
 }
 
 .bar-block {
-  margin-left: 5px;
+  margin-left: 20px;
   color: black;
   display: block;
   float: left;
-  width: 75%;
+  width: 100%;
   position: relative;
 }
 

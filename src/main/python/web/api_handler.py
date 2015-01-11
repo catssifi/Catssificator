@@ -19,7 +19,7 @@
 # Date: 2014 Dec - 2015
 import string
 from web.base_handler import BaseHandler, get_argument
-from web.constants import API_Constants
+from web.constants import JSON_API_Constants
 from backend.category import Category
 from query_processor import QueryProcessor
 from lib.utils import dumps, debug, convert_draw_to_offset,remove_non_valid_chars
@@ -36,8 +36,8 @@ def query(arguments, from_who=''):
     query = get_argument(arguments, 'query')
     _from_who=from_who
     response_obj = QueryProcessor().inquire(query)
-    if API_Constants.query_category_histogram in response_obj:
-        response_obj['query_category_histogram_html'] = UIBuilder.Instance().get_query_category_suggestions_histogram(response_obj[API_Constants.query_category_histogram])
+    if JSON_API_Constants.query_category_histogram in response_obj:
+        response_obj['query_category_histogram_html'] = UIBuilder.Instance().get_query_category_suggestions_histogram(response_obj[JSON_API_Constants.query_category_histogram])
     else:
         response_obj['query_category_histogram_html'] = ''
     return dumps(response_obj)

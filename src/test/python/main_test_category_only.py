@@ -28,7 +28,7 @@ from lib.utils import debug
 from backend.database import SQLDatabase
 from backend.category import Category
 from lib.config import Config
-from category_test import CategoryTest
+from testcase.category_test import CategoryTest
 
 
 def suite():
