@@ -73,7 +73,7 @@ def build_query_category_suggestions_histogram(categories_list):
           <table style="width:100%" class="table_Histogram">
                 <tr >
                     <th>
-                        Category Distributions:
+                        &nbsp;&nbsp;Estimated category distributions:
                     </th>
                 </tr>
                 <tr>

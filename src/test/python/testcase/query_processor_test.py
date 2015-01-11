@@ -27,6 +27,7 @@ from lib.utils import *
 from query_processor import QueryProcessor 
 from backend.category import Category, replace_category_num_with_name
 from backend.database import SQLDatabase,DB_Constants
+from web.constants import JSON_API_Constants
 import unittest
 
 class QueryProcessorTest(unittest.TestCase):
@@ -57,19 +58,19 @@ class QueryProcessorTest(unittest.TestCase):
         self.assertEqual(ans['result'], 'no')   #should find nothing first
         
         cn_md = self._category.get_num('Mobile_Devices')
-        self._fds.store('iphone', cn_md)
-        self._fds.store('sucks', cn_md)
+        self._fds.store('iphone', 1.0, [cn_md])
+        self._fds.store('sucks', 1.0, [cn_md])
         
         ans = self._qp.inquire(query)       #ask again, it should return Mobile_Devices
-        self.assertEqual(ans['category'], 'Mobile_Devices')   #should find it as Mobile_Devices
+        self.assertEqual(ans[JSON_API_Constants.category], 'Mobile_Devices')   #should find it as Mobile_Devices
         
         cn_t =  self._category.get_num('Technology')
-        self._fds.store('java', cn_t)
-        self._fds.store('sucks', cn_t)
+        self._fds.store('java', 1.0, [cn_t])
+        self._fds.store('sucks', 1.0, [cn_t])
         
         query2='java is hard?'
         ans = self._qp.inquire(query2)       #ask again, it should return Mobile_Devices
-        self.assertEqual(ans['category'], 'Technology')   #should find it as Technology
+        self.assertEqual(ans[JSON_API_Constants.category], 'Technology')   #should find it as Technology
         
     
     def test_submit(self):
@@ -96,7 +97,7 @@ class QueryProcessorTest(unittest.TestCase):
         ans=self._qp.inquire(query)
         #debug()
         self.assertEqual(ans['result'], 'yes')   #should find it as Technology
-        self.assertEqual(ans['category'], 'Technology')   #should find it as Technology
+        self.assertEqual(ans[JSON_API_Constants.category], 'Technology')   #should find it as Technology
         
         category_invalid='Porn'                                 #Try to submit to some invalid nonexist category
         sub_ans=self._qp.submit(query_submit, category_invalid, from_who='localhost2')
@@ -113,7 +114,7 @@ class QueryProcessorTest(unittest.TestCase):
         
         query='monitor repairment'
         ans=self._qp.inquire(query)
-        self.assertEqual(ans['category'], 'Hardware')   #should find it as Hardware since repairment is same as repair after being stemmed
+        self.assertEqual(ans[JSON_API_Constants.category], 'Hardware')   #should find it as Hardware since repairment is same as repair after being stemmed
             
     def tearDown(self):
         self._category.set_path(join(abspath(dirname('__file__')), '../../../config/test/')+'test-category-production.txt')

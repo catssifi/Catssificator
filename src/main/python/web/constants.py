@@ -18,5 +18,6 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
-class API_Constants(object):
+class JSON_API_Constants(object):
+    category = 'category'
     query_category_histogram = 'query_category_histogram'

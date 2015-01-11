@@ -23,10 +23,10 @@ import operator
 from request_ticket_system import RequestTicketSystem
 from backend.datastore_factory import DataStoreFactory
 from lib.loggable import Loggable
-from lib.utils import stem_all_words, dumps, debug, extract_head_tail,get_all_stop_words,get_sorted_turple_on_dict_by_value,get_percentize, enclose_tag
+from lib.utils import stem_all_words,dumps,debug,extract_head_tail,get_all_stop_words,get_sorted_turple_on_dict_by_value,get_percentize, enclose_tag,divide_a_by_b
 from backend.category import Category
 from backend.database import SQLDatabase
-from web.constants import API_Constants
+from web.constants import JSON_API_Constants
 
 class QueryProcessor(Loggable):
     _datastore = None
@@ -45,7 +45,7 @@ class QueryProcessor(Loggable):
         for word in words:
             word_categories=self._datastore.get(word, with_score=True)
             if word_categories and len(word_categories) > 0:
-                for word_category in word_categories:
+                for word_category in word_categories.items():
                     this_category = word_category[0]
                     this_frequency = word_category[1]
                     if this_category in category_score:
@@ -60,7 +60,7 @@ class QueryProcessor(Loggable):
             message = enclose_tag(message, 'h3')
             category_score_list = self.convert_to_histogram_obj(category_score)
             response_obj = {"result":"yes", "category":category_name, "category-full-name": category_full_name, "message": message
-                            , API_Constants.query_category_histogram: category_score_list}
+                            , JSON_API_Constants.query_category_histogram: category_score_list}
         else:
             message='Unfortunately, no category was found under the search query:%s ...' % (query)
             ticket_token=RequestTicketSystem.Instance().generate_category_ticket(query, words)
@@ -83,8 +83,10 @@ class QueryProcessor(Loggable):
                 response_str = dumps(response_str)
         else:
             words = self.process_query(query);
+            len_words=len(words)
+            word_strength=divide_a_by_b(1, len_words)
             for word in words:
-                self._datastore.store(word, category_num) #store it to the in-memory store
+                self._datastore.store(word, word_strength, [category_num]) #store it to the in-memory store
             response_str = {"result":"yes", "message":"query: \'%s\' has been processed!"% (extract_head_tail(query))}
             if dumps_it:
                 response_str = dumps(response_str)
@@ -119,14 +121,16 @@ class QueryProcessor(Loggable):
         return words
     
     def convert_to_histogram_obj(self, category_score):
-        sorted_category_score=get_sorted_turple_on_dict_by_value(category_score)
-        #debug()
+        sorted_category_score=get_sorted_turple_on_dict_by_value(category_score, reverse_the_result=True)
         total_score=category_score.values()[0]
         if len(category_score) > 1:
-            total_score=reduce(lambda x, y: x[1] + y[1], sorted_category_score)
+            total_score=0.0
+            for cccc in category_score.items():
+                total_score+=cccc[1]
+            #total_score=reduce(lambda x, y: x[1] + y[1], category_score)
         new_category_score={}
         new_category_score_list=list()
-        for c_s in category_score.items():
+        for c_s in sorted_category_score:
             percentize = get_percentize(c_s[1], total_score)
             new_category_score = (c_s[0], { "percentize": str(percentize), "full-category-name": Category.Instance().get_full_name(c_s[0])})
             new_category_score_list.append(new_category_score)

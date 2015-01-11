@@ -41,32 +41,31 @@ class FileDataStoreTest(unittest.TestCase):
         self.assertEqual(self._fds.get("Android"), None)
     
     def test_store_and_retrieve_lv1(self):
-        
         self._fds.set_retrieve_categories_level(1)
+        #debug()
+        self._fds.store('IPad', 1.0, [1,5,7])    #Storing the word 'IPad' to category num 1 and 5 and 7
+        self._fds.store('IPad', 1.0, [2,7])    #Storing the word 'IPad' to category num 2 and 7
+        self._fds.store('IPad', 1.0, [2,7,10])    #Storing the word 'IPad' to category num 2 and 7 and 10
+        self._fds.store('IPad', 1.0, [8,10])    #Storing the word 'IPad' to category num 8 and 10
         
-        self._fds.store('IPad', 1,5,7)    #Storing the word 'IPad' to category num 1 and 5
-        self._fds.store('IPad', 2,7)    #Storing the word 'IPad' to category num 2 and 7
-        self._fds.store('IPad', 2,7,10)    #Storing the word 'IPad' to category num 2 and 7 and 10
-        self._fds.store('IPad', 8,10)    #Storing the word 'IPad' to category num 8 and 10
+        self.assertEqual(self._fds.get("IPad",7), 3.0)    
+        self.assertEqual(self._fds.get("IPad",10), 2.0)     
+        self.assertEqual(self._fds.get("IPad",1), 1.0)
         
-        self.assertEqual(self._fds.get("IPad",7), 3)    
-        self.assertEqual(self._fds.get("IPad",10), 2)     
-        self.assertEqual(self._fds.get("IPad",1), 1)
-        
-        self.assertEqual(self._fds.get("IPad"), [7])
+        self.assertEqual(self._fds.get("IPad",highest_score_only=True), [7])
     
-        self._fds.store('Surface', 9,6)
-        self._fds.store('IPad', 2,8)
-        self._fds.store('Surface', 9)
-        self._fds.store('Surface', 9)
-        self._fds.store('Surface', 9,6)
-        self._fds.store('IPad', 2,11)
-        self._fds.store('IPad', 11)
+        self._fds.store('Surface', 1.0, [9,6])
+        self._fds.store('IPad', 1.0, [2,8])
+        self._fds.store('Surface', 1.0, [9])
+        self._fds.store('Surface', 1.0, [9])
+        self._fds.store('Surface', 1.0, [9,6])
+        self._fds.store('IPad', 1.0, [2,11])
+        self._fds.store('IPad', 1.0, [11])
         
-        self.assertEqual(self._fds.get("IPad"), [2])
-        self.assertEqual(self._fds.get("Surface"), [9])
+        self.assertEqual(self._fds.get("IPad",highest_score_only=True), [2.0])
+        self.assertEqual(self._fds.get("Surface",highest_score_only=True), [9.0])
 
         #now change the level to 3
         self._fds.set_retrieve_categories_level(3)
-        self.assertEqual(self._fds.get("IPad"), [2,7,8])
-        self.assertEqual(self._fds.get("Surface"), [9,6]) 
+        self.assertEqual(self._fds.get("IPad", highest_score_only=True), [2,7,8])
+        self.assertEqual(self._fds.get("Surface", highest_score_only=True), [9,6]) 
