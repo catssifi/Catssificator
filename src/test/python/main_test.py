@@ -28,12 +28,13 @@ from lib.utils import debug
 from backend.database import SQLDatabase
 from backend.category import Category
 from lib.config import Config
-from category_test import CategoryTest
-from file_datastore_test import FileDataStoreTest
-from file_upload_test import FileUploadTest
-from query_processor_test import QueryProcessorTest
-from request_ticket_system_test import RequestTicketSystemTest
-from sqldatabase_test import SQLDatabaseTest
+from testcase.category_test import CategoryTest
+from testcase.file_datastore_test import FileDataStoreTest
+from testcase.file_upload_test import FileUploadTest
+from testcase.query_processor_test import QueryProcessorTest
+from testcase.request_ticket_system_test import RequestTicketSystemTest
+from testcase.sqldatabase_test import SQLDatabaseTest
+from testcase.query_accuracy_test import QueryAccuracyTest
 
 
 def suite():
@@ -47,7 +48,10 @@ def suite():
     _test_dir=join(abspath(dirname('__file__')), '../../../config/test/')
     config_file = _test_dir + 'setup-test.yaml'
     Config.Instance().set_config_path(config_file)
-    Config.Instance().set_mode('prod')    
+    Config.Instance().set_mode('prod')
+    
+    Config.Instance().set_version_file_path(join(abspath(dirname('__file__')), '../../../doc/version.txt'))
+        
     _category=Category.Instance()
     cat_file = _test_dir +'test-category-production.txt'
     _category.set_path(cat_file)
@@ -59,6 +63,7 @@ def suite():
     test_suite.addTest(unittest.makeSuite(QueryProcessorTest))
     test_suite.addTest(unittest.makeSuite(RequestTicketSystemTest))
     test_suite.addTest(unittest.makeSuite(SQLDatabaseTest))
+    test_suite.addTest(unittest.makeSuite(QueryAccuracyTest))
     return test_suite
 
 mySuit=suite()

@@ -9,20 +9,10 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
   	<link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
   </head>
-  <body>
-  <div id="divMainFrame" class="divMainFrame">
-  <p align="left">
-  <img src="/static/lib/bootstrap/img/category-classificator.png">
-  </p>
-  
-<ul class="nav nav-tabs">
-        <li><a href="/">Home</a></li>
-        <li><a href="upload.html">Upload Query</a></li>
-        <li><a href="reports.html">Reports</a></li>
-        <li class="active"><a href="about.html">About</a></li>
-    </ul>
 
-<blockquote><h3>Current version - beta 0.1</h3> </blockquote>
+{% include "./static-pages/header.html" %} 
+
+<blockquote></blockquote>
   
   <table class="table table-striped table-bordered">
     <thead>
@@ -59,7 +49,7 @@
     </tr>
     <tr>
     <td>
-      Source code can be obtained from: <a href="https://github.com/wwken/category-classificator" target="_blank">github</a>
+      Source code can be obtained from: <a href="http://github.com/catssifi/Catssificator" target="_blank">github</a>
     </td>
     </tr>    
   </tr>
@@ -67,9 +57,4 @@
   </table>
 
 
-         </div> 
-                    
-        
-
-  </body>
-</html>
+{% include "./static-pages/footer.html" %}

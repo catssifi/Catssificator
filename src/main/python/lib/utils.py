@@ -26,6 +26,7 @@ import Stemmer
 import string
 import random
 import sys
+import operator
 from datetime import datetime
 from pytz import timezone
 import pytz
@@ -33,8 +34,11 @@ from time import gmtime, strftime
 import time
 from os import listdir
 from os.path import abspath, join, dirname, isfile
+from collections import Counter
 
 os.environ['TZ'] = 'UTC'
+STOP_WORDS=[u'&', u'i', u'me', u'my', u'myself', u'we', u'our', u'ours', u'ourselves', u'you', u'your', u'yours', u'yourself', u'yourselves', u'he', u'him', u'his', u'himself', u'she', u'her', u'hers', u'herself', u'it', u'its', u'itself', u'they', u'them', u'their', u'theirs', u'themselves', u'what', u'which', u'who', u'whom', u'this', u'that', u'these', u'those', u'am', u'is', u'are', u'was', u'were', u'be', u'been', u'being', u'have', u'has', u'had', u'having', u'do', u'does', u'did', u'doing', u'a', u'an', u'the', u'and', u'but', u'if', u'or', u'because', u'as', u'until', u'while', u'of', u'at', u'by', u'for', u'with', u'about', u'against', u'between', u'into', u'through', u'during', u'before', u'after', u'above', u'below', u'to', u'from', u'up', u'down', u'in', u'out', u'on', u'off', u'over', u'under', u'again', u'further', u'then', u'once', u'here', u'there', u'when', u'where', u'why', u'how', u'all', u'any', u'both', u'each', u'few', u'more', u'most', u'other', u'some', u'such', u'no', u'nor', u'not', u'only', u'own', u'same', u'so', u'than', u'too', u'very', u's', u't', u'can', u'will', u'just', u'don', u'should', u'now']
+STOP_WORDS_DICT = Counter(STOP_WORDS)
 
 def get_logger(name):
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -50,7 +54,38 @@ def copy_dictionary(d):
 def is_string(x):
     return isinstance(x, basestring)
 
+def is_num(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
+
 ##Algorithms part ####################################
+
+#return from 0 to 100 in two decimals representing the percentage
+def divide_a_by_b(portion, total, round_to=2):
+    portion=float(portion)
+    total=float(total)
+    return round(portion/total, round_to)
+    
+def get_percentize(portion, total, round_to=2):
+    divide_value = divide_a_by_b(portion, total, round_to)
+    return (divide_value * 100.0)
+    
+def does_list_a_all_exist_in_list_b(a, b, f):
+    for x in a:
+        this_x_founded_in_b=False
+        for y in b:
+            if f(x,y):
+                this_x_founded_in_b=True
+        if not this_x_founded_in_b:
+            return False
+    return True
+
+def convert_list_to_dict(l):
+    return Counter(l)   #converts to dictionary
+
 def get_categories_with_n_highest_score(categories_org, n=1):
     log.debug("Getting categories: %s with %s highest score..." % (categories_org,n)) 
     categories=copy_dictionary(categories_org)
@@ -63,6 +98,9 @@ def get_categories_with_n_highest_score(categories_org, n=1):
         del categories[k]
     return indcies
 
+def get_sorted_turple_on_dict_by_value(d, reverse_the_result=False):
+    sorted_x = sorted(d.items(), key=operator.itemgetter(1), reverse=reverse_the_result)
+    return sorted_x
 def generate_token(len):
     datetimestr=get_datetime()
     #pydevd.settrace()
@@ -81,12 +119,6 @@ def map_keys_to_the_values(values_without_key, keys):
             i+=1
         new_key_value_list.append(obj)
     return new_key_value_list
-
-def jsonize_str (map_results):
-    debug()
-    map_results_1 = str(map_results).replace('{', '').replace('}', '')
-    return map_results_1
-
 ##Cookie related ########################################
 def remove_non_valid_chars(line):
     if line:
@@ -179,6 +211,10 @@ def read_contents_from_dir(dir_p):
         contents.append(lines)
     return contents
         
+##html part ########################################
+def enclose_tag (htm, tag):
+    return '<%s>%s</%s>'%(tag, htm, tag) 
+        
 ##Json part ########################################   
 def get_json_value(json_str, field_name):
     decoded = json.loads(json_str)
@@ -189,6 +225,9 @@ def dumps(data):
         
 ##Natural language processing part ########################################   
 stemmer = Stemmer.Stemmer('english')
+
+def get_all_stop_words():
+    return STOP_WORDS_DICT
 
 def stem_all_words(word_list):
     stemmed_words = list()
@@ -216,11 +255,17 @@ def rindex(str, s):
     except:
         return str       
 
-def extract_head_tail(str, n=10, max_intact=50):
+def extract_head_tail(str, n=50, max_intact=150):
     if len(str) < max_intact or n > len(str)/2:
         return str
     else:
         return str[0:n]+'..........'+str[len(str)-n:len(str)]
+
+def extract_head_tail_in_bulk(map_results, category_index):
+    if map_results:
+        for m in map_results:
+            m[category_index] = extract_head_tail(m[category_index]) 
+    return map_results
 
 def unescape(s):
     s = convert_to_str(s)
@@ -239,6 +284,8 @@ def convert_draw_to_offset(draw, length):
         draw=int(draw)
     if is_string(length):
         length=int(length)
+    if draw > 1 and length > 10:    #some bugs in the datalength script..so i have to hardcore it
+        draw=draw-1
     return (draw) * length
 
 def convert_to_offset_to_draw(offset, length):
@@ -266,5 +313,37 @@ def build_ordered_by_sql_clause(ordered_column, ordered_direction):
         if ordered_direction:
             sql_ordered_by_str+= ' ' + ordered_direction
     return sql_ordered_by_str
+
+def _build_where_predicate_expr (pred):
+    field = pred[0]
+    operator = pred[1][0]
+    value = pred[1][1]
+    tokenized_value = value.split()
+    if len(tokenized_value) > 1:
+        return reduce(lambda x,y: field + ' ' + sqlize_a_value(operator, x) + ' and ' + field + ' ' + sqlize_a_value(operator, y)
+                        , tokenized_value)   
+    else:
+        return field + ' ' + sqlize_a_value(operator, value)
+
+def build_where_sql_clause(where_filter_dict):
+    where_sql=''
+    if where_filter_dict:
+        sql=''
+        for each_predicate in where_filter_dict.items():
+            sql += _build_where_predicate_expr(each_predicate)
+        where_sql='where ' + sql
+    return where_sql
+
+#basically enclose with a string if it is a not a number but missing a quote
+def sqlize_a_value(operator, x):
+    if is_num(x):
+        return operator + x
+    elif is_string(x):
+        if operator.lower() == 'like':
+            return operator + '\'%' + x +'%\''
+        else:
+            return operator + '\'' + x +'\''
+    else:
+        return str(x)
 
 log = get_logger("Utils") 

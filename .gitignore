@@ -2,3 +2,5 @@
 *.DS_Store
 *.log
 database.db
+*.project
+*.pydevproject

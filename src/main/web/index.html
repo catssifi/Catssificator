@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
   	<link href="/static/lib/bootstrap/css/mainsite.css" rel="stylesheet">
+    <link href="/static/lib/bootstrap/css/histogram.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
   	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
     <script src="/static/lib/bootstrap/js/main.js"></script>
@@ -47,13 +48,18 @@
                 resultMsg += '<br/>However, it is recommened that you can suggest a category to it by <a href="upload.html?token='+token+'">clicking here</a>.'
               } else {
                 if(cat_full_name) {
-                  resultMsg += '<br/>The full category is: <b>' + cat_full_name + '</b>'
+                  resultMsg += '<h4>The full category is: <b>' + cat_full_name + '</b></h4>'
                 }
               }
+              displayQueryCategorySuggestionHistogram(getValuesFromJson(j, 'query_category_histogram_html'))
               //resultMsg=decorateWithSucessfulMessage(resultMsg)
               displayResultMessage("#divQueryResult", resultMsg)
             } 
             });
+      }
+
+      function displayQueryCategorySuggestionHistogram (histogramHTML) {
+        $("#divQueryCategoryHistogram").html(histogramHTML)
       }
 
       function txtSearchQueryInput_update() {
@@ -92,18 +98,8 @@
 
   
   </head>
-  <body>
-  <div id="divMainFrame" class="divMainFrame">
-  <p align="left">
-  <img src="/static/lib/bootstrap/img/category-classificator.png">
-  </p>
   
-<ul class="nav nav-tabs">
-        <li class="active"><a href="/">Home</a></li>
-        <li><a href="upload.html">Upload Query</a></li>
-        <li><a href="reports.html">Reports</a></li>
-        <li><a href="about.html">About</a></li>
-    </ul>
+{% include "./static-pages/header.html" %}  
 
 <blockquote><h2 class="mainTitle">Welcome to Catssificator - beta version.<br/>It is an machine learning engine that predicts what categor(ies) that a given search query should belong to based on previous knowledges. </h2> </blockquote>
   
@@ -130,17 +126,14 @@
     </tr>
     <tr>
     <td>
-    <div id="divQueryResult"></div>
+
+        <div id="divQueryResult"></div>
+        <div id="divQueryCategoryHistogram"></div>
+                
     </td>
     </tr>
   </tr>
   </tbody>
   </table>
 
-
-          
-          </div>          
-        
-
-  </body>
-</html>
+{% include "./static-pages/footer.html" %}

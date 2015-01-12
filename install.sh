@@ -40,3 +40,8 @@ cd ..
 cd ..
 rm -rf "$install_dir"
 pip install tornado
+
+easy_install --upgrade pytz
+
+#also set the environment variables
+export CLASSIFICATOR_HOME="/Users/ken/workspace/category-classificator"

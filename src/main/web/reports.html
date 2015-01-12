@@ -10,6 +10,7 @@
 
     <!-- start: for the datatable -->
     <link href="/static/lib/bootstrap/css/jquery.dataTables.css" rel="stylesheet">
+    <script src="/static/lib/bootstrap/js/main.js"></script>
     <style type="text/css">
       td.details-control {
           background: url('/static/lib/bootstrap/img/details_open.png') no-repeat center center;
@@ -18,21 +19,26 @@
       tr.shown td.details-control {
           background: url('/static/lib/bootstrap/img/details_close.png') no-repeat center center;
       }
+      input[type="search"] {
+        box-sizing: initial;
+      }
     </style>
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    
     <script src="//code.jquery.com/jquery-1.11.1.min.js" language="javascript" type="text/javascript"></script>
     <script src="/static/lib/bootstrap/js/jquery.dataTables.min.js" language="javascript" type="text/javascript"></script>
     <script>
 
       /* Formatting function for row details - modify as you need */
-      function format(){
-          return '<div><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;" width="100%">'+
+      function format(fullQuery, fullCategory){
+          return '<div class="divDetailedQuery"><table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;" width="100%">'+
               '<tr>'+
-                  '<td>Full Category Path:</td>'+
-                  '<td></td>'+
+                  '<td width="150px" class="tdColHeader">Full Category Path:</td>'+
+                  '<td>'+fullCategory+'</td>'+
               '</tr>'+
               '<tr>'+
-                  '<td>Full Query:</td>'+
-                  '<td></td>'+
+                  '<td class="tdColHeader">Full Query:</td>'+
+                  '<td>'+fullQuery+'</td>'+
               '</tr>'+
           '</table></div>';
       }
@@ -41,9 +47,21 @@
           var table=$('#example').dataTable( {
               "processing": true,
               "serverSide": true,
-              
-              "ajax": "/api/report_past_queries"
-              , 
+              "scrollY":        "100%",
+        "scrollCollapse": true,
+              "ajax": "/api/report_past_queries",
+                "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]], 
+               "columnDefs": [ { "visible": false,  "targets": [ 1 ] }, 
+                              {
+                // The `data` parameter refers to the data for the cell (defined by the
+                // `data` option, which defaults to the column being worked with, in
+                // this case `data: 0`.
+                "render": function ( data, type, row ) {
+                    return '<div style="display:none">'+data['rowid']+'</div>';
+                },
+                "targets": 0
+            }
+                          ], 
               "columns": [
                   {
                       "className":      'details-control',
@@ -51,7 +69,7 @@
                       "data":           null,
                       "defaultContent": ''
                   },
-                  
+                  { "data": "rowid" },
                   { "data": "query" },
                   { "data": "from_who" },
                   { "data": "categories" },
@@ -61,10 +79,26 @@
            // Add event listener for opening and closing details
           $('#example tbody').on('click', 'td.details-control', function () {
               var tr = $(this).closest('tr');
-              if (tr.next().has('div').length>0) {
+              if (tr.attr('expanded')=="true") {
                 tr.next().remove()
+                 tr.removeClass('shown');
+                 tr.attr('expanded', false)
               } else {
-                tr.after('<tr><td colspan=5>'+format()+'</td></tr>')
+                tr.attr('expanded', true)
+                //extract the query id and send to the ajax hardcorelyyyyy..
+                var qid = $(this).html().substring($(this).html().indexOf('>')+1,$(this).html().substring(1).indexOf('<')+1)
+                $.ajax({
+                    url:"/api/report_past_query", 
+                    data: "id=" + qid, success:
+                    function(result) {
+                      var j = parseJson(result);
+                      var fullCategory= getValuesFromJson(j, 'full-category')
+                      var fullQuery= getValuesFromJson(j, 'full-query')
+
+                      tr.after('<tr><td colspan=5>'+format(fullQuery, fullCategory)+'</td></tr>')
+                    }
+                 }); 
+                tr.addClass('shown');
               }
               /*
               var row = table.row( tr );
@@ -101,18 +135,7 @@
     <!-- end: for the datatable -->
 
   </head>
-  <body>
-  <div id="divMainFrame" class="divMainFrame">
-  <p align="left">
-  <img src="/static/lib/bootstrap/img/category-classificator.png">
-  </p>
-  
-<ul class="nav nav-tabs">
-        <li><a href="/">Home</a></li>
-        <li><a href="upload.html">Upload Query</a></li>
-        <li class="active"><a href="reports.html">Reports</a></li>
-        <li ><a href="about.html">About</a></li>
-    </ul>
+{% include "./static-pages/header.html" %} 
 
 <table width="100%">
 <tr>
@@ -146,6 +169,7 @@ Local time: <b><span id="divTime"></span></b>
         <thead>
             <tr>
                 <th></th>
+                <th>rowid</th>
                 <th width="50%">Query</th>
                 <th>Source IP</th>
                 <th>Category</th>
@@ -156,6 +180,7 @@ Local time: <b><span id="divTime"></span></b>
         <tfoot>
             <tr>
                 <th></th>
+                <th>rowid</th>
                 <th>Query</th>
                 <th>Source IP</th>
                 <th>Category</th>
@@ -182,9 +207,4 @@ Local time: <b><span id="divTime"></span></b>
   </table>
 
 
-         </div> 
-                    
-        
-
-  </body>
-</html>
+{% include "./static-pages/footer.html" %}

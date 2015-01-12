@@ -31,11 +31,12 @@ from threading import Thread
 from query_processor import QueryProcessor
 from request_ticket_system import RequestTicketSystem
 from lib.utils import *
-from web.index_page_handler import HomePageHandler, UploadPageHandler, ReportsPageHandler, AboutPageHandler
+from web.index_page_handler import HomePageHandler, UploadPageHandler, ReportsPageHandler, AboutPageHandler,ChangesPageHandler
 from web.api_handler import APIHandler
 from web.fileupload_handler import FileUploadHandler
 from web.static_file_handler import StaticFileHandler
 from lib.config import Config
+from web.uibuilder import UIBuilder
 
 log = get_logger("Main")    
 server_addr = ('', 9797)
@@ -68,6 +69,7 @@ class CCRequestHandler(BaseHTTPRequestHandler):
     response_str=''
     ticket_token=''
     category=''
+    _from_who=str(self.client_address[0])+':'+str(self.client_address[1])
     for field in form.keys():
       field_item = form[field]
       if field == 'ticket-token':
@@ -80,9 +82,9 @@ class CCRequestHandler(BaseHTTPRequestHandler):
     if ticket_token and category: #If it is a request ticket submission mode
         response_str = RequestTicketSystem.Instance().submit(ticket_token, category)
     elif query and category:
-        response_str = QueryProcessor().submit(query, category)
+        response_str = QueryProcessor().submit(query, category,from_who=_from_who)
     elif query:
-        response_str = QueryProcessor().inquire(query, return_full_categories_if_not_found=True)
+        response_str = dumps(QueryProcessor().inquire(query, return_full_categories_if_not_found=True))
     else:
         response_str = '{"result":"no", "message"="invalid request"}'
     self.wfile.write(response_str)
@@ -95,7 +97,8 @@ application = tornado.web.Application([
     (r"/", HomePageHandler),
     (r"/upload.html", UploadPageHandler),
     (r"/reports.html", ReportsPageHandler),
-    (r"/about.html", AboutPageHandler)
+    (r"/about.html", AboutPageHandler),
+    (r"/changes.html", ChangesPageHandler)
 ])
 
 
@@ -125,6 +128,8 @@ if __name__ == '__main__':
         t2 = thread.start_new_thread( start_UI_server, ())
     else:
         log.info('Catssificator is running as dev (console) mode only.')
+    
+    UIBuilder.Instance()    #initialize the UIBuilder
     
     log = get_logger('Main')
     while 1:

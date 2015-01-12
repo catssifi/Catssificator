@@ -4,7 +4,7 @@ body, table, tr, td, div {
     font-family: "PT Serif",serif;
     font-style: normal;
     line-height: 22px;
-    font-size: 16px;
+
 }
 
 .mainTitle {
@@ -33,7 +33,45 @@ div.divResult_bad{
 	height: 25px;
 }
 
+div.divDetailedQuery td.tdColHeader {
+	font-size: smaller
+}
+
+div.divFooter {
+	font-size: smaller;
+	text-align: right;	
+}
+
+div.divFooter a{
+	font-color: #222222;
+	
+}
+
 table.tableButtonPanel td {
 	border-left: 0px;
 	padding: 4px;
+}
+
+table.tblStandard {
+	width: 100%;
+	cellspacing: 5;
+	cellspacing: 5;
+	margin-left: 10px;
+	margin-top: 10px;
+}
+
+.ui-menu { width: 400px; }
+
+#textInputCategory {
+	width: 388px;
+}
+
+#tableSelectsAnCategory {
+
+}
+
+#tableSelectsAnCategory th, #tableSelectsAnCategory td{
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
 }

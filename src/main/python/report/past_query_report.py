@@ -19,7 +19,7 @@
 # Date: 2014 Dec - 2015
 
 from lib.loggable import Loggable
-from lib.utils import debug, convert_to_offset_to_draw, dumps, map_keys_to_the_values,jsonize_str, convert_UTC_time_zones_to_Local_time_zones_in_bulk
+from lib.utils import debug, convert_to_offset_to_draw, dumps, map_keys_to_the_values, convert_UTC_time_zones_to_Local_time_zones_in_bulk, extract_head_tail_in_bulk
 from backend.database import SQLDatabase,DB_Constants
 from backend.category import Category,replace_category_num_with_name
 
@@ -30,15 +30,30 @@ class PastQueryReport(Loggable):
     _ordered_column_index=None
     _ordered_direction=None
     _sqldb=None
+    _search_value=None
     
     #draw parameter is pretty much specify to the datatable web plugin
-    def __init__ (self, draw, limit=25, offset=0, ordered_column_index=0, ordered_direction=''):
+    def __init__ (self, draw, limit=25, offset=0, ordered_column_index=0, ordered_direction='', search_value='', id=None):
         self._draw = int(draw)
         self._limit=limit
         self._offset=offset
         self._ordered_column_index=ordered_column_index
         self._ordered_direction=ordered_direction
         self._sqldb=SQLDatabase.Instance()
+        self._search_value=search_value
+    
+    def generate_detail_report_by_id(self, id):
+        _cols=[DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, 
+               DB_Constants.tbl_Query_Map_col_from_who,
+               DB_Constants.tbl_Query_Map_col_categories, DB_Constants.tbl_Query_Map_col_create_date]
+        map_results = self._sqldb.select_query_map(cols=_cols, id=id)
+        map_results = map_keys_to_the_values(map_results, _cols)
+        results = {
+                        "full-category": Category.Instance().get_name(map_results[0][DB_Constants.tbl_Query_Map_col_categories], full_path=True),
+                        "full-query": map_results[0][DB_Constants.tbl_Query_Map_col_query]
+                   }
+        j_response = dumps(results)
+        return j_response
         
     #returns a json document
     def generate_report(self):
@@ -53,8 +68,12 @@ class PastQueryReport(Loggable):
                 self._ordered_direction = 'DESC'
             else:
                 self._ordered_direction = 'ASC'
-        map_results = self._sqldb.select_query_map(cols=_cols, limit=self._limit, offset=self._offset, ordered_column_index=self._ordered_column_index, ordered_direction=self._ordered_direction)
+        _where_filter_dict={}
+        if self._search_value:
+            _where_filter_dict[DB_Constants.tbl_Query_Map_col_query] = ('LIKE', self._search_value)
+        map_results = self._sqldb.select_query_map(cols=_cols, where_filter_dict=_where_filter_dict, limit=self._limit, offset=self._offset, ordered_column_index=self._ordered_column_index, ordered_direction=self._ordered_direction)
         map_results = map_keys_to_the_values(map_results, _cols)
+        map_results = extract_head_tail_in_bulk(map_results, DB_Constants.tbl_Query_Map_col_query)
         map_results = convert_UTC_time_zones_to_Local_time_zones_in_bulk(map_results, DB_Constants.tbl_Query_Map_col_create_date)
         map_results = replace_category_num_with_name(map_results, DB_Constants.tbl_Query_Map_col_categories)
         records_total=0 if not map_results else self._sqldb.count_query_map()
@@ -64,7 +83,7 @@ class PastQueryReport(Loggable):
                     "recordsTotal": records_total, 
                     "recordsFiltered": records_filtered,
                     "data": 
-                             map_results if map_results else [[]]
+                             map_results if map_results else []
                     
                  }
         #debug()

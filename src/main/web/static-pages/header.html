@@ -1,0 +1,15 @@
+<body>
+  <div id="divMainFrame" class="divMainFrame">
+  <p align="left">
+  <img src="/static/lib/bootstrap/img/category-classificator.png">
+  </p>
+<ul class="nav nav-tabs">
+        <li {% if request.uri=='/' %} class="active" {% end %}><a href="/">Home</a></li>
+        <li {% if request.uri=='/upload.html' %} class="active" {% end %}><a href="upload.html">Upload Query</a></li>
+        <li {% if request.uri=='/reports.html' %} class="active" {% end %}><a href="reports.html">Reports</a></li>
+        <li {% if request.uri=='/about.html' or request.uri=='/changes.html' %} class="active" {% end %}><a href="about.html">About</a></li>
+    </ul>
+
+
+
+ 

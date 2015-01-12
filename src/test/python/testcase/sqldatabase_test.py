@@ -43,7 +43,6 @@ class SQLDatabaseTest(unittest.TestCase):
 		query='Cats are human\'s friends & soulmates'
 		self._sqldb.insert_into_query_map(query, '127.0.0.1')    	
 		result = self._sqldb.select_query_map(cols=[DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_categories])
-		#debug()
 		self.assertEqual(result[3][1], query)
 		
 		#Now test the offset and limit
@@ -52,7 +51,7 @@ class SQLDatabaseTest(unittest.TestCase):
 		
 		id=result[0][0]
 		#debug()
-		self._sqldb.del_query_map_by_id([1, id])
+		self._sqldb.del_query_map_by_id([1, 2])
 		result = self._sqldb.select_query_map(cols=[DB_Constants.tbl_Query_Map_col_id])
 		self.assertEqual(len(result), 2)	#removed two, should have only 2 records
 		

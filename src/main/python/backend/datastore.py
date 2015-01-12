@@ -27,8 +27,9 @@ class DataStore(Loggable):
     __metaclass__ = ABCMeta
     _retrieve_categories_level=1
     
+    #count_score is float number between 0.0 to 1.0
     @abstractmethod
-    def store(self, word, *args_category, **kwargs_category):
+    def store(self, word, count_score=1.0, category_nums=[]):
         pass
     
     #If category_num is None, then returns the category_num(s) by the word

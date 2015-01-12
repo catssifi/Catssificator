@@ -1,4 +1,5 @@
-# Copyright (c) 2014 Ken Wu
+#!/usr/bin/python
+# Copyright (c) 2015 Ken Wu
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -17,15 +18,6 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
-cd $CLASSIFICATOR_HOME
-./query.sh "Iphone on sales" "Mobile Phones"
-./query.sh "Android on sales" "Mobile Phones"
-./query.sh "iphone overheat problems" "Mobile Phones"
-./query.sh "which phone is better" "Mobile Phones"
-./query.sh "David Beckham" "Soccer"
-./query.sh "manchester united" "Soccer"
-./query.sh "Van Gaal" "Soccer"
-./query.sh "Van Diesel's wife" "Film & Television"
-./query.sh "Where to drink today" "Beverages"
-./query.sh "Qualia Media is an awesome Ad Tech company" "Advertising & Marketing"
-./query.sh "Ken Wu" "Advertising & Marketing"
+class JSON_API_Constants(object):
+    category = 'category'
+    query_category_histogram = 'query_category_histogram'

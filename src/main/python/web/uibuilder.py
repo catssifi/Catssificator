@@ -34,6 +34,9 @@ class UIBuilder():
         
     def get_category_menu(self):
         return self._category_menu_in_html
+    
+    def get_query_category_suggestions_histogram(self, categories):
+        return build_query_category_suggestions_histogram(categories)
 
 def build_category_menu(category_num=None):
     
@@ -63,3 +66,61 @@ def build_category_menu(category_num=None):
     
     #_category_menu = str
     return str
+
+_category_rank_words=['five', 'four', 'three', 'two', 'one']
+def build_query_category_suggestions_histogram(categories_list):
+    hist_str='''
+          <table style="width:100%" class="table_Histogram">
+                <tr >
+                    <th>
+                        &nbsp;&nbsp;Estimated category distributions:
+                    </th>
+                </tr>
+                <tr>
+                  <td>
+                  '''
+    hist_str+='<div class="histo">'
+    animate_str=''
+    i=0
+    for cat in categories_list:
+        rank = get_rank(cat[1]['percentize'])
+        hist_str+='<div class="'+rank+' histo-rate">'
+        hist_str+='    <span class="histo-star"><i class="active icon-star"></i> '+cat[1]['full-category-name']+' </span>'
+        hist_str+='    <span class="bar-block">'
+        hist_str+='       <span id="id-bar-'+str(i)+'" class="bar bar-'+rank+'">'
+        hist_str+='            <span>'+cat[1]['percentize']+'%</span>&nbsp;'
+        hist_str+='       </span>'
+        hist_str+='    </span>'
+        hist_str+=''
+        hist_str+='    '
+        hist_str+='</div>'
+        
+        animate_str+='$("#id-bar-'+str(i)+'").animate({width: "'+cat[1]['percentize']+'%"}, 700); '
+        i+=1
+    hist_str+='</div>'
+    hist_str+='<script>'
+    hist_str+='    $(".bar span").hide();'
+    hist_str+='    ' + animate_str
+    hist_str+='    setTimeout(function() { $(".bar span").fadeIn("slow"); }, 500);'
+    hist_str+='</script>'
+    
+    hist_str+='''</td>
+                <td>
+                </td>
+                </tr>
+      </table>'''
+    
+    return hist_str
+
+def get_rank(percentize):
+    percentize=float(percentize)
+    if percentize >= 80:
+        return _category_rank_words[0]
+    if percentize >= 60:
+        return _category_rank_words[1]
+    if percentize >= 40:
+        return _category_rank_words[2]
+    if percentize >= 20:
+        return _category_rank_words[3]
+    
+    return _category_rank_words[4]
