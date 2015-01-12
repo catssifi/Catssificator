@@ -20,6 +20,10 @@ before_script:
   - cd ..
   - easy_install --upgrade pytz
 
+test:
+  adapter: sqlite3
+  database: ":memory:"
+  timeout: 500
 
 # command to run tests
 script: nosetests main_test.py -w src/test/python/
