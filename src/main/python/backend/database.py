@@ -23,7 +23,7 @@ import threading
 from lib.config import Config
 from lib.loggable import Loggable
 from lib.singleton import Singleton
-from lib.utils import debug, columnize_in_sql_way, build_ordered_by_sql_clause
+from lib.utils import debug, columnize_in_sql_way, build_ordered_by_sql_clause,build_where_sql_clause
 
 import sqlite3
 from sqlalchemy import *
@@ -34,7 +34,7 @@ Base = declarative_base()
 
 class DB_Constants(object):
 	tbl_Query_Map = 'Query_Map'
-	tbl_Query_Map_col_id = 'id'
+	tbl_Query_Map_col_id = 'rowid'
 	tbl_Query_Map_col_query = 'query'
 	tbl_Query_Map_col_from_who = 'from_who'
 	tbl_Query_Map_col_create_date = 'create_date'
@@ -168,10 +168,11 @@ class SQLDatabase(Loggable):
 				_where_clause_sql += ' and %s = "%s"' % (DB_Constants.tbl_Category_col_category, category)
 		return self._select_table(DB_Constants.tbl_Category, cols_str, id=None, where_clause_sql=_where_clause_sql)
 		
-	def select_query_map(self, cols=None, id=None, limit=10, offset=0, ordered_column_index=0, ordered_direction=''):
+	def select_query_map(self, where_filter_dict=None, cols=None, id=None, limit=10, offset=0, ordered_column_index=0, ordered_direction=''):
 		cols_str=columnize_in_sql_way(cols)
 		ordered_column=cols[ordered_column_index]
-		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, id, limit, offset, ordered_column, ordered_direction, where_clause_sql='')
+		where_clause_sql=build_where_sql_clause(where_filter_dict)
+		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, id, limit, offset, ordered_column, ordered_direction, where_clause_sql=where_clause_sql)
 
 	def _select_table(self, table_name, cols_str, id=None, limit=10, offset=0, ordered_column='', ordered_direction='', where_clause_sql=''):
 		ordered_by_sql_clause=build_ordered_by_sql_clause(ordered_column, ordered_direction)
@@ -188,8 +189,8 @@ class SQLDatabase(Loggable):
 
 	def del_query_map_by_id(self, ids):
 		ids_str=columnize_in_sql_way(ids)
-		sql = ''' DELETE FROM %s WHERE id in (%s)
-		'''                   %(DB_Constants.tbl_Query_Map, ids_str)
+		sql = ''' DELETE FROM %s WHERE %s in (%s)
+		'''                   %(DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_id, ids_str)
 		results = self.execute(sql)
 
 	#This method is very danergous! call with caution
@@ -205,9 +206,9 @@ class SQLDatabase(Loggable):
 	def init_sqlite(self):
 		with self._lock:
 			sql = '''
-			          CREATE TABLE if not exists %s
-			          ( %s INTEGER PRIMARY KEY ASC, %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
-			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
+			          CREATE VIRTUAL TABLE if not exists %s 
+			          USING fts3 ( %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
+			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
 			self.execute(sql)
 			
 			sql = '''

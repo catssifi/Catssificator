@@ -72,9 +72,11 @@ def report_past_queries(arguments, from_who=''):
     _offset=convert_draw_to_offset(_offset, length)
     _ordered_column_index = int(get_argument(arguments, 'order[0][column]')[0])
     _ordered_direction = get_argument(arguments, 'order[0][dir]')
+    _search_value = get_argument(arguments, 'search[value]')
     _from_who=from_who
     response_str = PastQueryReport(limit=length, offset=_offset, draw=_draw, 
-                                   ordered_column_index=_ordered_column_index, ordered_direction=_ordered_direction).generate_report()
+                                   ordered_column_index=_ordered_column_index, ordered_direction=_ordered_direction
+                                   , search_value=_search_value).generate_report()
     return response_str
 
 def suggest_categories(arguments, from_who=''):

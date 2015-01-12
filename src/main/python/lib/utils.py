@@ -54,6 +54,13 @@ def copy_dictionary(d):
 def is_string(x):
     return isinstance(x, basestring)
 
+def is_num(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
+
 ##Algorithms part ####################################
 
 #return from 0 to 100 in two decimals representing the percentage
@@ -306,5 +313,37 @@ def build_ordered_by_sql_clause(ordered_column, ordered_direction):
         if ordered_direction:
             sql_ordered_by_str+= ' ' + ordered_direction
     return sql_ordered_by_str
+
+def _build_where_predicate_expr (pred):
+    field = pred[0]
+    operator = pred[1][0]
+    value = pred[1][1]
+    tokenized_value = value.split()
+    if len(tokenized_value) > 1:
+        return reduce(lambda x,y: field + ' ' + sqlize_a_value(operator, x) + ' and ' + field + ' ' + sqlize_a_value(operator, y)
+                        , tokenized_value)   
+    else:
+        return field + ' ' + sqlize_a_value(operator, value)
+
+def build_where_sql_clause(where_filter_dict):
+    where_sql=''
+    if where_filter_dict:
+        sql=''
+        for each_predicate in where_filter_dict.items():
+            sql += _build_where_predicate_expr(each_predicate)
+        where_sql='where ' + sql
+    return where_sql
+
+#basically enclose with a string if it is a not a number but missing a quote
+def sqlize_a_value(operator, x):
+    if is_num(x):
+        return operator + x
+    elif is_string(x):
+        if operator.lower() == 'like':
+            return operator + '\'%' + x +'%\''
+        else:
+            return operator + '\'' + x +'\''
+    else:
+        return str(x)
 
 log = get_logger("Utils") 
