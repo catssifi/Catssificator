@@ -1,9 +1,9 @@
-<img src="doc/category-classificator.png">
+<img src="src/main/web/lib/bootstrap/img/category-classificator.png">
 ##About Category-Classificator (a.k.a. Catssificator)
 
 #Offical release is coming soon .. Please stay tune!
 
-This software implements an A.I. system with advanced machine learning techniques that reads any given input and determines what category(ies) it should belong to based on what it has learned previously.  In a novel way, it implements the Natural language processing on a machine-learning way.
+http://www.catssifi.org/
 
 ###Supported platforms/environments
 As of today, this software has been developed/tested in Mac/Linux platform and the fully-supported web-browser is FireFox (For chrome, i suppose it should be 100% fully compatible as well).  The <b>python 2.7x</b> is required to be installed. 
