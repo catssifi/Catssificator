@@ -206,9 +206,9 @@ class SQLDatabase(Loggable):
 	def init_sqlite(self):
 		with self._lock:
 			sql = '''
-			          CREATE VIRTUAL TABLE if not exists %s 
-			          USING fts3 ( %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
-			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
+			          CREATE TABLE if not exists %s
+			          ( %s INTEGER PRIMARY KEY ASC, %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
+			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
 			self.execute(sql)
 			
 			sql = '''
