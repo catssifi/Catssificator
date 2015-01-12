@@ -30,15 +30,17 @@ class PastQueryReport(Loggable):
     _ordered_column_index=None
     _ordered_direction=None
     _sqldb=None
+    _search_value=None
     
     #draw parameter is pretty much specify to the datatable web plugin
-    def __init__ (self, draw, limit=25, offset=0, ordered_column_index=0, ordered_direction='', id=None):
+    def __init__ (self, draw, limit=25, offset=0, ordered_column_index=0, ordered_direction='', search_value='', id=None):
         self._draw = int(draw)
         self._limit=limit
         self._offset=offset
         self._ordered_column_index=ordered_column_index
         self._ordered_direction=ordered_direction
         self._sqldb=SQLDatabase.Instance()
+        self._search_value=search_value
     
     def generate_detail_report_by_id(self, id):
         _cols=[DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, 
@@ -66,7 +68,10 @@ class PastQueryReport(Loggable):
                 self._ordered_direction = 'DESC'
             else:
                 self._ordered_direction = 'ASC'
-        map_results = self._sqldb.select_query_map(cols=_cols, limit=self._limit, offset=self._offset, ordered_column_index=self._ordered_column_index, ordered_direction=self._ordered_direction)
+        _where_filter_dict={}
+        if self._search_value:
+            _where_filter_dict[DB_Constants.tbl_Query_Map_col_query] = ('LIKE', self._search_value)
+        map_results = self._sqldb.select_query_map(cols=_cols, where_filter_dict=_where_filter_dict, limit=self._limit, offset=self._offset, ordered_column_index=self._ordered_column_index, ordered_direction=self._ordered_direction)
         map_results = map_keys_to_the_values(map_results, _cols)
         map_results = extract_head_tail_in_bulk(map_results, DB_Constants.tbl_Query_Map_col_query)
         map_results = convert_UTC_time_zones_to_Local_time_zones_in_bulk(map_results, DB_Constants.tbl_Query_Map_col_create_date)
@@ -78,7 +83,7 @@ class PastQueryReport(Loggable):
                     "recordsTotal": records_total, 
                     "recordsFiltered": records_filtered,
                     "data": 
-                             map_results if map_results else [[]]
+                             map_results if map_results else []
                     
                  }
         #debug()
