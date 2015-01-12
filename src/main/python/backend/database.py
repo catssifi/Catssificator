@@ -206,10 +206,19 @@ class SQLDatabase(Loggable):
 	def init_sqlite(self):
 		with self._lock:
 			sql = '''
-			          CREATE TABLE if not exists %s
-			          ( %s INTEGER PRIMARY KEY ASC, %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
+			          CREATE VIRTUAL TABLE if not exists %s 
+			          USING fts3 ( %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
+			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
+			try:
+				self.execute(sql)
+				self.info('Created Virtual table %s' %(DB_Constants.tbl_Query_Map))
+			except Exception as e:
+				#created the adapter for creating an virtual table if it failed in travis-ci
+				self.error('Creating Virtual table %s failed...Now just create the normal non-virtual table' %(DB_Constants.tbl_Query_Map))
+				sql = ''' CREATE TABLE if not exists %s
+			              ( %s INTEGER PRIMARY KEY ASC, %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
 			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
-			self.execute(sql)
+				self.execute(sql)
 			
 			sql = '''
 						CREATE TABLE if not exists %s
