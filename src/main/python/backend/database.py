@@ -172,15 +172,15 @@ class SQLDatabase(Loggable):
 		cols_str=columnize_in_sql_way(cols)
 		ordered_column=cols[ordered_column_index]
 		where_clause_sql=build_where_sql_clause(where_filter_dict)
-		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, id, limit, offset, ordered_column, ordered_direction, where_clause_sql=where_clause_sql)
+		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, DB_Constants.tbl_Query_Map_col_id, id, limit, offset, ordered_column, ordered_direction, where_clause_sql=where_clause_sql)
 
-	def _select_table(self, table_name, cols_str, id=None, limit=10, offset=0, ordered_column='', ordered_direction='', where_clause_sql=''):
+	def _select_table(self, table_name, cols_str, id_col_name='id', id=None, limit=10, offset=0, ordered_column='', ordered_direction='', where_clause_sql=''):
 		ordered_by_sql_clause=build_ordered_by_sql_clause(ordered_column, ordered_direction)
 		if id:
 			if where_clause_sql:
-				where_clause_sql += ' and id=%s'%(id)
+				where_clause_sql += ' and %s=%s'%(id_col_name, id)
 			else:
-				where_clause_sql = ' where id=%s'%(id)
+				where_clause_sql = ' where %s=%s'%(id_col_name, id)
 		sql = '''select %s        from %s %s %s LIMIT %s OFFSET %s 
 		''' %(  cols_str, table_name, where_clause_sql, ordered_by_sql_clause,  limit,    offset)
 		#debug() 
