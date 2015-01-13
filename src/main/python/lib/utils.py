@@ -27,7 +27,7 @@ import string
 import random
 import sys
 import operator
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
 import pytz
 from time import gmtime, strftime
@@ -126,6 +126,8 @@ def remove_non_valid_chars(line):
     return line
 
 ##Date/time part ########################################
+def add_seconds_to_datetime(d, num_of_secs):
+    return d + timedelta(seconds=int(num_of_secs))
 def get_datetime():
     return strftime("%Y%m%d%H%M%S", gmtime())
 def convert_date_to_s(d, format='%Y%m%d'):

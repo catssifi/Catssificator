@@ -19,20 +19,22 @@
 # Date: 2014 Dec - 2015
 from yaml import load
 from lib.loggable import Loggable
+from lib.loggable import Loggable
 from lib.singleton import Singleton
 from lib.utils import get_base, real_lines, debug
 from os.path import abspath, join, dirname, isfile
 
 
 @Singleton
-class Config():
+class Config(Loggable):
     
     _mode = ''
     _config_path = get_base('config/setup.yaml') 
     _version_file_path = join(abspath(dirname('__file__')), 'doc/version.txt')
     
     def __init__ (self):
-        self._mode = self.get_yaml_data(['common', 'run_mode'], 'dev')  
+        self._mode = self.get_yaml_data(['common', 'run_mode'], 'dev')
+        self.info('At Config constructor...._mode: '+ self._mode)  
     
     def get_category_path(self):
         if self._mode == 'prod' or self._mode == 'production':
