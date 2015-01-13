@@ -4,3 +4,8 @@ common:
 
   #Of relative path format	
   file_upload_base_dir: 'catssificator-upload-test' 
+
+cache:
+  #The cache expiration setting in seconds 
+  submissions_today: '60'
+  submissions_in_the_past_n_days: '7200'
