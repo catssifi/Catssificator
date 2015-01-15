@@ -5,6 +5,12 @@ common:
   #Of relative path format	
   file_upload_base_dir: 'catssificator-upload-test' 
 
+db-ai:
+
+  #This is A.I. sql database location (This databaes is optional to exist in the system and it requires manually building this)
+  location: 'test-database-ai.db'
+
+
 cache:
   #The cache expiration setting in seconds 
   submissions_today: '60'
