@@ -18,10 +18,29 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
+from lib.utils import words,debug
 from lib.loggable import Loggable
+from textblob import TextBlob, Word
+from ai.ai_database_builder import AIDatabaseBuilder
+
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
+_words_counts_model = AIDatabaseBuilder.Instance().load_words_counts_model()
+
+def is_correct(ww):
+    return len(ww)==1 and ww[0][1]==1.0
 
 class SentenceCorrector(Loggable):
     
-    def __init__(self):
-        pass
+    _sentence_str = ''
     
+    def __init__(self, sentence_str):
+        self._sentence_str  = sentence_str
+    
+    
+    def suggest(self):
+        wds = words(self._sentence_str)
+        for w in wds:
+            ww=Word(w).spellcheck()
+            if not is_correct(ww):
+                i=0
+        return 'hello'

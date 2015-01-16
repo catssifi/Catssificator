@@ -17,18 +17,19 @@
 #
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
-import re, collections
-from lib.utils import debug, real_lines,get_file_name_from_path,get_line_and_md5_from_file,convert_list_to_dict
+import collections
+import threading
+from lib.utils import debug, real_lines,get_file_name_from_path,get_line_and_md5_from_file, words
 from lib.singleton import Singleton
 from lib.loggable import Loggable
-from backend.database import SQLDatabase_AI
-
-def words(text): return re.findall('[a-z]+', text.lower()) 
+from backend.database import SQLDatabase_AI 
 
 @Singleton
 class AIDatabaseBuilder(Loggable):
     
     _db = None
+    #_words_counts_model = None
+    #_lock_words_counts_model = threading.RLock()
     
     def __init__(self):
         self._db = SQLDatabase_AI.Instance()
@@ -63,5 +64,7 @@ class AIDatabaseBuilder(Loggable):
         d={}
         results = self._db.select_words_counts()
         if results:
-            d=convert_list_to_dict(results)
+            for item in results: 
+                d[item[0]]=item[1]
+        self._words_counts_model = d
         return d

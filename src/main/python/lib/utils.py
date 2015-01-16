@@ -29,6 +29,7 @@ import sys
 import operator
 import ntpath
 import hashlib
+import re
 from datetime import datetime, timedelta
 from pytz import timezone
 import pytz
@@ -291,6 +292,8 @@ def unescape(s):
     # this has to be last:
     s = s.replace("&amp;", "&")
     return s
+
+def words(text): return re.findall('[a-z]+', text.lower())
 
 ##Reports related #############################################
 

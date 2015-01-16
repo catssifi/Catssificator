@@ -24,6 +24,7 @@ sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/
 
 import unittest   # second test
 from lib.utils import debug
+from testcase.sentence_corrector_test import SentenceCorrectorTest
 from testcase.ai_database_builder_test import AIDatabaseBuilderTest
 from backend.database import SQLDatabase
 from lib.config import Config
@@ -44,6 +45,7 @@ def suite():
     
     test_suite = unittest.TestSuite()
     test_suite.addTest(unittest.makeSuite(AIDatabaseBuilderTest))
+    #test_suite.addTest(unittest.makeSuite(SentenceCorrectorTest))
     return test_suite
 
 mySuit=suite()
