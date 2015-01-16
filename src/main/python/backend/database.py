@@ -303,6 +303,7 @@ class SQLDatabase_AI(Database):
 		
 	def insert_or_replace_words_count(self, model):
 		inserted=0
+		log_str=''
 		for m in model.items():
 			sql = '''INSERT OR REPLACE INTO %s (%s, %s, %s) 
   					VALUES ('%s',
@@ -312,8 +313,9 @@ class SQLDatabase_AI(Database):
 							m[0], 
 							DB_Constants.tbl_Word_Occurrence_col_occurrence, DB_Constants.tbl_Word_Occurrence, DB_Constants.tbl_Word_Occurrence_col_word, m[0], m[1], m[1])
 			self.execute(sql)
-			self.info('word: (%s,%s) inserted !' %(m[0], m[1]))
+			log_str += 'word: (%s,%s) inserted !' %(m[0], m[1])
 			inserted+=1
+		#self.info('Inserted: ' + log_str)
 		return inserted
 	
 	def insert_processed_path(self, path, md5):

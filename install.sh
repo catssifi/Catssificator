@@ -17,6 +17,8 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
+#This script should be executed under sudo privileges
+
 install_dir='./tmp_install_dir'
 if [ ! -d "$install_dir" ]; then
 	mkdir "$install_dir"
@@ -42,6 +44,10 @@ rm -rf "$install_dir"
 pip install tornado
 
 easy_install --upgrade pytz
+
+#Now install the nltk and its stuffs
+pip install -U textblob
+python -m textblob.download_corpora
 
 #also set the environment variables
 export CLASSIFICATOR_HOME="/Users/ken/workspace/category-classificator"
