@@ -31,5 +31,5 @@ test:
   database: ":memory:"
   timeout: 500
 
-# command to run tests
+# command to run tests!!!
 script: nosetests main_test.py -w src/test/python/
