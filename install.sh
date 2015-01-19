@@ -49,5 +49,8 @@ easy_install --upgrade pytz
 pip install -U textblob
 python -m textblob.download_corpora
 
+#Now install the CodernityDB
+pip install CodernityDB
+
 #also set the environment variables
 export CLASSIFICATOR_HOME="/Users/ken/workspace/category-classificator"

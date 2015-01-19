@@ -22,7 +22,7 @@ import sys
 from os.path import abspath, join, dirname
 sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/'))
 from lib.utils import debug
-from ai.ai_database_builder import AIDatabaseBuilder
+from ai.ai_database_builder import AIDatabaseBuilder,get_top_word_tag,get_top_n_n_similarity
 import unittest
 
 
@@ -36,7 +36,41 @@ class AIDatabaseBuilderTest(unittest.TestCase):
         self._test_resources_base = join(abspath(dirname('__file__')), '../../../resources/ai/test/')
         self._builder.reset_whole_database()
     
-    def test_build_word_counts_and_load(self):
+    def test_build_word_map(self):
+        
+        first_word_tag='NN'
+        b=self._builder
+        b.add_word_tag(first_word_tag, [(1, 'VBZ'), (2, 'DT'),    (3, 'NN')])
+        b.add_word_tag(first_word_tag, [(1, 'VBZ'), (2, 'JJ'),    (3, 'NN')])
+        b.add_word_tag(first_word_tag, [(1, 'DT'),  (2, 'VBZ'),   (3, 'JJ')])
+        b.add_word_tag(first_word_tag, [(1, 'DT'),  (2, 'VBZ'),   (3, 'JJ'), (4, 'VBZ')])
+        b.add_word_tag(first_word_tag, [(1, 'DT'),  (2, 'VBZ'),   (3, 'NNS'), (4, 'VBZ')])
+        b.add_word_tag(first_word_tag, [(1, 'DT'),  (2, 'DT'),   (3, 'NN'), (4, 'VBZ')])
+        #self.assertNotEqual(results,None)
+        
+        results = get_top_word_tag(b.get_word_tag(first_word_tag), 2, 2)
+        self.assertEqual(results[0][0], 'VBZ')
+        
+        #now try with level=100, it should just return all elements in the map
+        results = get_top_word_tag(b.get_word_tag(first_word_tag), 2, 100)
+        self.assertEqual(len(results), 3)
+        
+        results = get_top_word_tag(b.get_word_tag(first_word_tag), 4, 1)
+        self.assertEqual(results[0][0], 'VBZ')
+        
+    def test_build_noun_noun_similarity(self):
+        
+        b = self._builder
+        w_python='python'
+        
+        b.add_noun_nouns_simarility(w_python, ['programming', 'tools', 'language'])
+        b.add_noun_nouns_simarility(w_python, ['scale', 'programming', 'implementations'])
+        b.add_noun_nouns_simarility(w_python, ['language', 'programming'])
+        results = get_top_n_n_similarity(b.get_noun_similarity(w_python), 2)
+        self.assertNotEqual(results[0], 'programming')
+        self.assertNotEqual(results[1], 'language')
+        
+        '''
         len_of_model=586
         inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test.txt')
         self.assertEqual(inserted, len_of_model)
@@ -65,6 +99,6 @@ class AIDatabaseBuilderTest(unittest.TestCase):
         inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test_2.txt')
         model = self._builder.load_words_counts_model()
         self.assertEqual(model['the'], 379) #it should be 443 - 64
-        
+        '''
         
         
