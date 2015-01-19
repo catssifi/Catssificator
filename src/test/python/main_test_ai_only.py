@@ -22,29 +22,33 @@ import sys
 from os.path import abspath, join, dirname
 sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/'))
 
+from backend.nosql_database import NoSQLDatabase,AI_NoSqlDatabase
+from lib.config import Config
+"""
+    Gather all the tests from this module in a test suite.
+"""
+_test_db_file=join(abspath(dirname('__file__')), '../../../data/test/test-nosqldb.db')
+NoSQLDatabase._db_location = _test_db_file
+
+_test_dir=join(abspath(dirname('__file__')), '../../../config/test/')
+config_file = _test_dir + 'setup-test.yaml'
+Config.Instance().set_config_path(config_file)
+Config.Instance().set_mode('prod')  
+
+Config.Instance().set_version_file_path(join(abspath(dirname('__file__')), '../../../doc/version.txt'))    
+
+
 import unittest   # second test
 from lib.utils import debug
-from testcase.sentence_corrector_test import SentenceCorrectorTest
+#
 from testcase.ai_database_builder_test import AIDatabaseBuilderTest
-from backend.database import SQLDatabase
-from lib.config import Config
+
 
 def suite():
-    """
-        Gather all the tests from this module in a test suite.
-    """
-    _test_file='test-sqldb.db'
-    SQLDatabase._db_location = _test_file
-    
-    _test_dir=join(abspath(dirname('__file__')), '../../../config/test/')
-    config_file = _test_dir + 'setup-test.yaml'
-    Config.Instance().set_config_path(config_file)
-    Config.Instance().set_mode('prod')  
-    
-    Config.Instance().set_version_file_path(join(abspath(dirname('__file__')), '../../../doc/version.txt'))    
     
     test_suite = unittest.TestSuite()
     test_suite.addTest(unittest.makeSuite(AIDatabaseBuilderTest))
+    #from testcase.sentence_corrector_test import SentenceCorrectorTest
     #test_suite.addTest(unittest.makeSuite(SentenceCorrectorTest))
     return test_suite
 
