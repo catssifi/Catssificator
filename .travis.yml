@@ -20,6 +20,12 @@ before_script:
   - cd ..
   - easy_install --upgrade pytz
 
+  - pip install -U textblob
+  - python -m textblob.download_corpora
+
+  - pip install CodernityDB
+
+
 test:
   adapter: sqlite3
   database: ":memory:"

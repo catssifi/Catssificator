@@ -37,6 +37,9 @@ from testcase.sqldatabase_test import SQLDatabaseTest
 from testcase.query_accuracy_test import QueryAccuracyTest
 from testcase.cache_layer_test import CacheLayerTest
 
+#Here the ai stuffs
+from testcase.ai_database_builder_test import AIDatabaseBuilderTest
+
 
 def suite():
     """
@@ -66,6 +69,7 @@ def suite():
     test_suite.addTest(unittest.makeSuite(SQLDatabaseTest))
     test_suite.addTest(unittest.makeSuite(QueryAccuracyTest))
     test_suite.addTest(unittest.makeSuite(CacheLayerTest))
+    test_suite.addTest(unittest.makeSuite(AIDatabaseBuilderTest))
     return test_suite
 
 mySuit=suite()

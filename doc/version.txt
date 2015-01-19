@@ -1,3 +1,4 @@
+0.6 beta|2015-01-16|Initial version of auto-corrections/suggestions on the misspelled words by users @ https://github.com/catssifi/Catssificator/issues/12
 0.5 beta|2015-01-12|Cache Layer is implemented and pending more tests + permanent repo relocated to: https://github.com/catssifi/Catssificator
 0.4 beta|2015-01-11|Added word-relative weights in each query submitted logic + search capabilities in Reports page 
 0.3 beta|2015-01-10|Finished up the auto-suggestions on category selections

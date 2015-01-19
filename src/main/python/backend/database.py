@@ -33,6 +33,7 @@ from sqlalchemy.orm import relation, sessionmaker
 Base = declarative_base()
 
 class DB_Constants(object):
+	#This is for the normal database
 	tbl_Query_Map = 'Query_Map'
 	tbl_Query_Map_col_id = 'rowid'
 	tbl_Query_Map_col_query = 'query'
@@ -46,6 +47,21 @@ class DB_Constants(object):
 	tbl_Submission_Count_col_day_n = 'day_n'
 	tbl_Submission_Count_col_count = 'count'
 	
+	#This is for the AI optional database
+	tbl_Word_Occurrence = 'Word_Occurrence'
+	tbl_Word_Occurrence_col_id = 'rowid'
+	tbl_Word_Occurrence_col_word = 'word'
+	tbl_Word_Occurrence_col_occurrence = 'occurrence'
+	tbl_Word_Occurrence_col_last_update_time = 'last_update_time'
+	tbl_Word_Occurrence_idx_word = 'idx'+tbl_Word_Occurrence_col_word
+	
+	tbl_Processed_Path = 'Processed_Path' 		#This is the table which records all path or url links which has been processed
+	tbl_Processed_Path_col_id = 'rowid'
+	tbl_Processed_Path_col_path = 'path'
+	tbl_Processed_Path_col_md5 = 'md5'
+	tbl_Processed_Path_col_processed_time = 'processed_time'
+	tbl_Processed_Path_idx_path = 'idx'+tbl_Processed_Path_col_path
+	
 	INCEPTION_DATE = datetime(2015,01,05)
 
 def calculate_day_n_list (date_started_back_to, back_days):
@@ -57,11 +73,68 @@ def calculate_day_n_list (date_started_back_to, back_days):
 		day_n_list.append(start_day_n + i)
 	return day_n_list
 
-@Singleton
-class SQLDatabase(Loggable):
+#This is an abstract Database class 
+class Database(Loggable):
 	
 	_db_location = None
 	_db = None
+	
+	def get_connection(self):
+		return sqlite3.connect(self._db_location)
+	
+	def _count_table(self, table_name):
+		sql = 'select count(1) from %s' % (table_name)
+		results = self.execute(sql, return_results=True)
+		return results[0][0]
+
+	def _insert_into_table(self, table_name, cols_str, cols_value):
+		sql = ''' INSERT INTO %s (%s) VALUES (%s)
+				''' %(table_name, cols_str, cols_value)
+		self.execute(sql)
+
+	#limit can be None if it is to select everything
+	def _select_table(self, table_name, cols_str, id_col_name='id', id=None, limit=10, offset=0, ordered_column='', ordered_direction='', where_clause_sql=''):
+		ordered_by_sql_clause=build_ordered_by_sql_clause(ordered_column, ordered_direction)
+		if id:
+			if where_clause_sql:
+				where_clause_sql += ' and %s=%s'%(id_col_name, id)
+			else:
+				where_clause_sql = ' where %s=%s'%(id_col_name, id)
+		limit_str=''
+		offset_str=''
+		if limit:
+			limit_str = 'LIMIT %s' % (limit)
+			offset_str='OFFSET %s' % (offset)
+		sql = '''select %s        from %s %s %s %s %s 
+		''' %(  cols_str, table_name, where_clause_sql, ordered_by_sql_clause,  limit_str, offset_str)
+		#debug() 
+		results = self.execute(sql, return_results=True)
+		return results
+	
+	def _create_virtual_table(self, table_name, virtual_table_create_sql, non_virtual_table_create_sql):
+		try:
+			self.execute(virtual_table_create_sql)
+			self.info('Created Virtual table %s sucessed!' %(table_name))
+		except Exception as e:
+			#created the adapter for creating an virtual table if it failed in travis-ci
+			self.error('Creating Virtual table %s failed...Now just create the normal non-virtual table' %(table_name))
+			self.execute(non_virtual_table_create_sql)
+	
+	def execute(self, sql_statement, return_results=False):
+		results=None
+		conn = self.get_connection()
+		c = conn.cursor()
+		c.execute(sql_statement)
+		if return_results:
+			results=c.fetchall()
+		conn.commit()
+		conn.close()
+		return results
+
+
+@Singleton
+class SQLDatabase(Database):
+	
 	_lock = threading.RLock()
 	_lock_submission_count = threading.RLock()
 	
@@ -146,17 +219,10 @@ class SQLDatabase(Loggable):
 			if sql:
 				self.execute(sql)
 
-	def get_connection(self):
-		return sqlite3.connect(self._db_location)
-
+	
 	def count_query_map(self):
 		return self._count_table(DB_Constants.tbl_Query_Map)
 	
-	def _count_table(self, table_name):
-		sql = 'select count(1) from %s' % (table_name)
-		results = self.execute(sql, return_results=True)
-		return results[0][0]
-
 	def select_category(self, category_num=None, category=None):
 		cols_str=columnize_in_sql_way([DB_Constants.tbl_Category_col_category_num, DB_Constants.tbl_Category_col_category])
 		_where_clause_sql=''
@@ -173,19 +239,6 @@ class SQLDatabase(Loggable):
 		ordered_column=cols[ordered_column_index]
 		where_clause_sql=build_where_sql_clause(where_filter_dict)
 		return self._select_table(DB_Constants.tbl_Query_Map, cols_str, DB_Constants.tbl_Query_Map_col_id, id, limit, offset, ordered_column, ordered_direction, where_clause_sql=where_clause_sql)
-
-	def _select_table(self, table_name, cols_str, id_col_name='id', id=None, limit=10, offset=0, ordered_column='', ordered_direction='', where_clause_sql=''):
-		ordered_by_sql_clause=build_ordered_by_sql_clause(ordered_column, ordered_direction)
-		if id:
-			if where_clause_sql:
-				where_clause_sql += ' and %s=%s'%(id_col_name, id)
-			else:
-				where_clause_sql = ' where %s=%s'%(id_col_name, id)
-		sql = '''select %s        from %s %s %s LIMIT %s OFFSET %s 
-		''' %(  cols_str, table_name, where_clause_sql, ordered_by_sql_clause,  limit,    offset)
-		#debug() 
-		results = self.execute(sql, return_results=True)
-		return results
 
 	def del_query_map_by_id(self, ids):
 		ids_str=columnize_in_sql_way(ids)
@@ -205,20 +258,14 @@ class SQLDatabase(Loggable):
 
 	def init_sqlite(self):
 		with self._lock:
-			sql = '''
+			virtual_table_create_sql = '''
 			          CREATE VIRTUAL TABLE if not exists %s 
 			          USING fts3 ( %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
 			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
-			try:
-				self.execute(sql)
-				self.info('Created Virtual table %s' %(DB_Constants.tbl_Query_Map))
-			except Exception as e:
-				#created the adapter for creating an virtual table if it failed in travis-ci
-				self.error('Creating Virtual table %s failed...Now just create the normal non-virtual table' %(DB_Constants.tbl_Query_Map))
-				sql = ''' CREATE TABLE if not exists %s
-			              ( %s INTEGER PRIMARY KEY ASC, %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
-			     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
-				self.execute(sql)
+			non_virtual_table_create_sql = ''' CREATE TABLE if not exists %s
+		              ( %s INTEGER PRIMARY KEY ASC, %s TEXT NOT NULL, %s VARCHAR(80), %s DATETIME, %s VARCHAR(40)) 
+		     ''' % (DB_Constants.tbl_Query_Map, DB_Constants.tbl_Query_Map_col_id, DB_Constants.tbl_Query_Map_col_query, DB_Constants.tbl_Query_Map_col_from_who, DB_Constants.tbl_Query_Map_col_create_date, DB_Constants.tbl_Query_Map_col_categories)
+			self._create_virtual_table(DB_Constants.tbl_Query_Map,virtual_table_create_sql, non_virtual_table_create_sql)
 			
 			sql = '''
 						CREATE TABLE if not exists %s
@@ -231,14 +278,4 @@ class SQLDatabase(Loggable):
 			          (%s SMALLINT NOT NULL, %s INTEGER NOT NULL)
 					''' % (DB_Constants.tbl_Submission_Count, DB_Constants.tbl_Submission_Count_col_day_n, DB_Constants.tbl_Submission_Count_col_count)
 			self.execute(sql)
-		
-	def execute(self, sql_statement, return_results=False):
-		results=None
-		conn = self.get_connection()
-		c = conn.cursor()
-		c.execute(sql_statement)
-		if return_results:
-			results=c.fetchall()
-		conn.commit()
-		conn.close()
-		return results
+			

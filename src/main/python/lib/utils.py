@@ -27,6 +27,9 @@ import string
 import random
 import sys
 import operator
+import ntpath
+import hashlib
+import re
 from datetime import datetime, timedelta
 from pytz import timezone
 import pytz
@@ -162,6 +165,10 @@ def debug():
         pass
 
 ##File/io part ########################################
+def get_file_name_from_path(path):
+    head, tail = ntpath.split(path)
+    return tail or ntpath.basename(head)
+
 def get_base(p):
     return join(abspath(dirname('__file__')), p)
 
@@ -269,6 +276,14 @@ def extract_head_tail_in_bulk(map_results, category_index):
             m[category_index] = extract_head_tail(m[category_index]) 
     return map_results
 
+def generate_md5(s):
+    return hashlib.md5(s).hexdigest()
+
+def get_line_and_md5_from_file(f):
+    lines = real_lines(f, is_critical=True)
+    all_contents_in_one_line = reduce(lambda x,y: x+y, lines)
+    return (all_contents_in_one_line, generate_md5(all_contents_in_one_line))
+
 def unescape(s):
     s = convert_to_str(s)
     s = s.replace("%20", " ")
@@ -277,6 +292,8 @@ def unescape(s):
     # this has to be last:
     s = s.replace("&amp;", "&")
     return s
+
+def words(text): return re.findall('[a-z]+', text.lower())
 
 ##Reports related #############################################
 
@@ -330,10 +347,11 @@ def _build_where_predicate_expr (pred):
 def build_where_sql_clause(where_filter_dict):
     where_sql=''
     if where_filter_dict:
-        sql=''
-        for each_predicate in where_filter_dict.items():
-            sql += _build_where_predicate_expr(each_predicate)
-        where_sql='where ' + sql
+        if len(where_filter_dict) > 1:
+            where_sql='where ' + reduce(lambda x,y: _build_where_predicate_expr(x) + ' and ' + 
+                                        _build_where_predicate_expr(y), where_filter_dict.items())
+        else:
+            where_sql='where ' + _build_where_predicate_expr(where_filter_dict.items()[0])
     return where_sql
 
 #basically enclose with a string if it is a not a number but missing a quote
