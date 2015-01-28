@@ -41,15 +41,16 @@ Config.Instance().set_version_file_path(join(abspath(dirname('__file__')), '../.
 import unittest   # second test
 from lib.utils import debug
 #
-from testcase.ai_database_builder_test import AIDatabaseBuilderTest
+from testcase.ai_builder_reader_test import AIBuilderReaderTest
+from testcase.sentence_corrector_test import SentenceCorrectorTest
 
 
 def suite():
     
     test_suite = unittest.TestSuite()
-    test_suite.addTest(unittest.makeSuite(AIDatabaseBuilderTest))
+    test_suite.addTest(unittest.makeSuite(AIBuilderReaderTest))
     #from testcase.sentence_corrector_test import SentenceCorrectorTest
-    #test_suite.addTest(unittest.makeSuite(SentenceCorrectorTest))
+    test_suite.addTest(unittest.makeSuite(SentenceCorrectorTest))
     return test_suite
 
 mySuit=suite()

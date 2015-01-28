@@ -30,6 +30,8 @@ class NOSQL_DB_Constants(object):
 
 	tbl_WORD = 'Word_Tag'
 	tbl_WORD_Noun_Noun_Similarity = 'Noun_Noun_Similarity'
+	
+	tbl_Processed_File = 'Processed_File'
 
 #This is an abstract Database class 
 class NoSQLDatabase(Loggable):
@@ -66,6 +68,20 @@ class NounNounSimilarityIndex(HashIndex):
     def make_key(self, key):
         return md5(key).digest()
 
+class ProcessedFileIndex(HashIndex):
+
+    def __init__(self, *args, **kwargs):
+        kwargs['key_format'] = '16s'
+        super(ProcessedFileIndex, self).__init__(*args, **kwargs)
+
+    def make_key_value(self, data):
+        if data['t'] == 'Processed_File':
+            m = data['md5']
+            return md5(m).digest(), {'md5': data['md5'], 'file_path': data['file_path'], 'processed_date': data['processed_date']}
+
+    def make_key(self, key):
+        return md5(key).digest()
+
 @Singleton
 class AI_NoSqlDatabase(NoSQLDatabase):
 
@@ -98,6 +114,7 @@ class AI_NoSqlDatabase(NoSQLDatabase):
 			db.create()
 			db.add_index(WordTagIndex(db.path, NOSQL_DB_Constants.tbl_WORD))
 			db.add_index(NounNounSimilarityIndex(db.path, NOSQL_DB_Constants.tbl_WORD_Noun_Noun_Similarity))
+			db.add_index(ProcessedFileIndex(db.path, NOSQL_DB_Constants.tbl_Processed_File))
 			
 	def add_to_noun_noun_map(self, doc):
 		doc['t'] = NOSQL_DB_Constants.tbl_WORD_Noun_Noun_Similarity
@@ -107,17 +124,22 @@ class AI_NoSqlDatabase(NoSQLDatabase):
 		doc['t'] = NOSQL_DB_Constants.tbl_WORD
 		return self._db.insert(doc)
 	
-	
+	def add_to_processed_path(self, doc):
+		doc['t'] = NOSQL_DB_Constants.tbl_Processed_File
+		return self._db.insert(doc)
 	
 	def get_from_noun_noun(self, noun_x):
-		try: 
-			return self._db.get(NOSQL_DB_Constants.tbl_WORD_Noun_Noun_Similarity, noun_x, with_doc=True)
-		except RecordNotFound as e:
-			return None
-	
+		return self._get(NOSQL_DB_Constants.tbl_WORD_Noun_Noun_Similarity, noun_x, with_doc=True)
+		
 	def get_from_word_tag(self, word_tag):
+		return self._get(NOSQL_DB_Constants.tbl_WORD, word_tag, with_doc=True)
+		
+	def get_from_processed_file(self, md5):
+		return self._get(NOSQL_DB_Constants.tbl_Processed_File, md5, with_doc=True)
+		
+	def _get(self, index_name, key, with_doc):
 		try: 
-			return self._db.get(NOSQL_DB_Constants.tbl_WORD, word_tag, with_doc=True)
+			return self._db.get(index_name, key, with_doc=with_doc)
 		except RecordNotFound as e:
 			return None
 	
