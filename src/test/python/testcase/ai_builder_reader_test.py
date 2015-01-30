@@ -36,7 +36,7 @@ class AIBuilderReaderTest(unittest.TestCase):
     
     def setUp(self):
         self._builder = AIBuilder.Instance()
-        self._test_resources_base = join(abspath(dirname('__file__')), '../../../resources/ai/test/')
+        self._test_resources_base = join(abspath(dirname('__file__')), '../../../resources/test/ai/')
         self._builder.reset_whole_database()
         self._reader = AIReader.Instance()
         
@@ -103,11 +103,11 @@ class AIBuilderReaderTest(unittest.TestCase):
         self.assertEqual(results[0][0], 'good')
         
     def test_import_file(self):
-        
-        inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test.txt')
+        #debug()
+        inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test_1.txt')
         self.assertNotEqual(inserted, None)
-        inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test.txt') 
-        self.assertEqual(inserted, None) #make sure nothing being inserted again
+        inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test_2.txt') 
+        self.assertNotEqual(inserted, None) #make sure nothing being inserted again
         
         r=self._reader
         results=r.get_top_noun_similarity('Majesty', 3)

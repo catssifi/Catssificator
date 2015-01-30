@@ -61,11 +61,12 @@ The system is configured with 6000 categories.  you can always change it at conf
 There are also advanced capabilities, as of today, <a href="doc/usage.md#words-stemming" target=_blank>words stemming</a>, included in the system.  Please refer to the <a href="doc/usage.md" target=_blank>useage document</a> for more information.
 
 ####(Optional) Pre-populate some data into the system  
-I have prepared also a script that populated some search queries with its pre-defined category.  Please run it to load it to the system so that it does not start from zero
+I have prepared also a script that populated some search queries with its pre-defined category.  Run it to load it to the system so that when the server runs it have some data to play with:
 <pre>
 $ ./script/populate-knowledge.sh
+$ ./script/populate-ai-database.sh
 </pre>
-
+Note that inside the above scripts the environment variable: CLASSIFICATOR_HOME must be set accordingly.
 After that, if we ask something like, "drink tonight", it should automatically figure out it is a Berverages category
 <pre>
 $ ./query.sh "drink tonight"

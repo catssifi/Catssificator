@@ -32,6 +32,8 @@ class NOSQL_DB_Constants(object):
 	tbl_WORD_Noun_Noun_Similarity = 'Noun_Noun_Similarity'
 	
 	tbl_Processed_File = 'Processed_File'
+	
+	tbl_New_Vocab = 'New_Vocab'
 
 #This is an abstract Database class 
 class NoSQLDatabase(Loggable):
@@ -82,6 +84,23 @@ class ProcessedFileIndex(HashIndex):
     def make_key(self, key):
         return md5(key).digest()
 
+
+class NewVocabIndex(HashIndex):
+
+    def __init__(self, *args, **kwargs):
+        kwargs['key_format'] = '16s'
+        super(NewVocabIndex, self).__init__(*args, **kwargs)
+
+    def make_key_value(self, data):
+        if data['t'] == 'New_Vocab':
+            wt = data['new_vocab']
+            # if not isinstance(login, basestring):
+            #     login = str(login)
+            return md5(wt).digest(), {'new_vocab': data['new_vocab']}
+
+    def make_key(self, key):
+        return md5(key).digest()
+
 @Singleton
 class AI_NoSqlDatabase(NoSQLDatabase):
 
@@ -115,6 +134,8 @@ class AI_NoSqlDatabase(NoSQLDatabase):
 			db.add_index(WordTagIndex(db.path, NOSQL_DB_Constants.tbl_WORD))
 			db.add_index(NounNounSimilarityIndex(db.path, NOSQL_DB_Constants.tbl_WORD_Noun_Noun_Similarity))
 			db.add_index(ProcessedFileIndex(db.path, NOSQL_DB_Constants.tbl_Processed_File))
+			db.add_index(NewVocabIndex(db.path, NOSQL_DB_Constants.tbl_New_Vocab))
+			
 			
 	def add_to_noun_noun_map(self, doc):
 		doc['t'] = NOSQL_DB_Constants.tbl_WORD_Noun_Noun_Similarity
@@ -128,6 +149,10 @@ class AI_NoSqlDatabase(NoSQLDatabase):
 		doc['t'] = NOSQL_DB_Constants.tbl_Processed_File
 		return self._db.insert(doc)
 	
+	def add_to_new_vocab(self, doc):
+		doc['t'] = NOSQL_DB_Constants.tbl_New_Vocab
+		return self._db.insert(doc)
+	
 	def get_from_noun_noun(self, noun_x):
 		return self._get(NOSQL_DB_Constants.tbl_WORD_Noun_Noun_Similarity, noun_x, with_doc=True)
 		
@@ -136,6 +161,10 @@ class AI_NoSqlDatabase(NoSQLDatabase):
 		
 	def get_from_processed_file(self, md5):
 		return self._get(NOSQL_DB_Constants.tbl_Processed_File, md5, with_doc=True)
+	
+	def get_from_new_vocab(self, w):
+		return self._get(NOSQL_DB_Constants.tbl_New_Vocab, w, with_doc=True)
+	
 		
 	def _get(self, index_name, key, with_doc):
 		try: 

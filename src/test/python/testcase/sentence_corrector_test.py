@@ -43,6 +43,7 @@ class SentenceCorrectorTest(unittest.TestCase):
     def test_sentence_suggestions_on_spelling_mistakes(self):
         
         orig_str = 'a maee is stronger than female'
+        #debug()
         new_str = SentenceCorrector(orig_str).suggest()
         self.assertEqual(new_str, 'a male is stronger than female')
         
@@ -63,5 +64,11 @@ class SentenceCorrectorTest(unittest.TestCase):
         orig_str = 'a made is stronger than female'
         new_str = SentenceCorrector(orig_str).suggest()
         self.assertEqual(new_str, 'a male is stronger than female')
+        
+        #THis should be of no error
+        orig_str = 'a male is strong'
+        new_str = SentenceCorrector(orig_str).suggest()
+        self.assertEqual(new_str, 'a male is strong')
+        
         
         

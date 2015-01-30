@@ -28,6 +28,7 @@ from query_processor import QueryProcessor
 from backend.category import Category, replace_category_num_with_name
 from backend.database import SQLDatabase,DB_Constants
 from web.constants import JSON_API_Constants
+from ai.new_vocab_collections import NewVocabCollections
 import unittest
 
 class QueryProcessorTest(unittest.TestCase):
@@ -53,15 +54,17 @@ class QueryProcessorTest(unittest.TestCase):
         self.assertEqual(words, ['look', 'iphon'])   #should find nothing first
         
     def test_query_answer_1(self):
+        
         query='Iphone good one'
-        ans = self._qp.inquire(query)
+        ans = self._qp.inquire(query, correction_suggestion_turned_on=False)
         self.assertEqual(ans['result'], 'no')   #should find nothing first
         
         cn_md = self._category.get_num('Mobile_Devices')
         self._fds.store('iphone', 1.0, [cn_md])
         self._fds.store('sucks', 1.0, [cn_md])
         
-        ans = self._qp.inquire(query)       #ask again, it should return Mobile_Devices
+        ans = self._qp.inquire(query, correction_suggestion_turned_on=False)       #ask again, it should return Mobile_Devices
+        #debug()
         self.assertEqual(ans[JSON_API_Constants.category], 'Mobile_Devices')   #should find it as Mobile_Devices
         
         cn_t =  self._category.get_num('Technology')
@@ -69,7 +72,7 @@ class QueryProcessorTest(unittest.TestCase):
         self._fds.store('sucks', 1.0, [cn_t])
         
         query2='java is hard?'
-        ans = self._qp.inquire(query2)       #ask again, it should return Mobile_Devices
+        ans = self._qp.inquire(query2, correction_suggestion_turned_on=False)       #ask again, it should return Mobile_Devices
         self.assertEqual(ans[JSON_API_Constants.category], 'Technology')   #should find it as Technology
         
     
@@ -94,7 +97,7 @@ class QueryProcessorTest(unittest.TestCase):
         
         
         query='is amazon good'
-        ans=self._qp.inquire(query)
+        ans=self._qp.inquire(query, correction_suggestion_turned_on=False)
         #debug()
         self.assertEqual(ans['result'], 'yes')   #should find it as Technology
         self.assertEqual(ans[JSON_API_Constants.category], 'Technology')   #should find it as Technology
@@ -113,7 +116,7 @@ class QueryProcessorTest(unittest.TestCase):
         self._qp.submit(query_submit, category, from_who='localhost2')    
         
         query='monitor repairment'
-        ans=self._qp.inquire(query)
+        ans=self._qp.inquire(query, correction_suggestion_turned_on=False)
         self.assertEqual(ans[JSON_API_Constants.category], 'Hardware')   #should find it as Hardware since repairment is same as repair after being stemmed
             
     def tearDown(self):

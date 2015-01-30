@@ -38,7 +38,8 @@ from testcase.query_accuracy_test import QueryAccuracyTest
 from testcase.cache_layer_test import CacheLayerTest
 
 #Here the ai stuffs
-from testcase.ai_builder_test import AIBuilderTest
+from testcase.ai_builder_reader_test import AIBuilderReaderTest
+from testcase.sentence_corrector_test import SentenceCorrectorTest
 
 
 def suite():
@@ -69,7 +70,9 @@ def suite():
     test_suite.addTest(unittest.makeSuite(SQLDatabaseTest))
     test_suite.addTest(unittest.makeSuite(QueryAccuracyTest))
     test_suite.addTest(unittest.makeSuite(CacheLayerTest))
-    test_suite.addTest(unittest.makeSuite(AIBuilderTest))
+    test_suite.addTest(unittest.makeSuite(AIBuilderReaderTest))
+    test_suite.addTest(unittest.makeSuite(SentenceCorrectorTest))
+    
     return test_suite
 
 mySuit=suite()

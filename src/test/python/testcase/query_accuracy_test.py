@@ -53,12 +53,12 @@ class QueryAccuracyTest(unittest.TestCase):
         
     def test_query_strengths(self):
         query='IPHONE'
-        self.assertEqual(self._qp.inquire(query)['result'], 'no')   #made sure it starts from empty first
+        self.assertEqual(self._qp.inquire(query, correction_suggestion_turned_on=False)['result'], 'no')   #made sure it starts from empty first
         self._qp.submit(query, mobile_devices_category)
-        self.assertEqual(self._qp.inquire(query)[JSON_API_Constants.category], mobile_devices_category)   #made sure it now has a assigned category
+        self.assertEqual(self._qp.inquire(query, correction_suggestion_turned_on=False)[JSON_API_Constants.category], mobile_devices_category)   #made sure it now has a assigned category
         
         query='Today my iphone is broken, i am taking it to for repair in a local brooklyn shop'
-        self.assertEqual(self._qp.inquire(query)[JSON_API_Constants.category], mobile_devices_category)   #made sure this query now has a assigned category: mobile devices
+        self.assertEqual(self._qp.inquire(query, correction_suggestion_turned_on=False)[JSON_API_Constants.category], mobile_devices_category)   #made sure this query now has a assigned category: mobile devices
         self._qp.submit(query, hardware_category)       #Now submit this query to the hardware_category
         
         query='my dad\'s iphone is broken as well...searching for a cheap repair shop'
@@ -66,7 +66,7 @@ class QueryAccuracyTest(unittest.TestCase):
         
         
         query='IPHONE'
-        results = self._qp.inquire(query)
+        results = self._qp.inquire(query, correction_suggestion_turned_on=False)
         self.assertEqual(results[JSON_API_Constants.category], mobile_devices_category)   #It should belong to the mobile_devices category since the previous two queries are nosier than the first one
         
         

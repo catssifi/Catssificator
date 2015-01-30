@@ -18,9 +18,28 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
-class JSON_API_Constants(object):
-    category = 'category'
-    
-    query_category_histogram = 'query_category_histogram'
-    
-    new_query_suggested='new_query_suggested'
+from lib.singleton import Singleton
+from backend.nosql_database import AI_NoSqlDatabase
+
+@Singleton
+class NewVocabCollections(object):
+	
+	_db = None
+	
+	def __init__(self):
+		self._db = AI_NoSqlDatabase.Instance()
+
+	def add(self, w):
+		try:
+			is_m = self.is_member(w)
+		except IndexNotFoundException as e:
+			is_m = False
+		doc = dict(new_vocab=w)
+		self._db.add_to_new_vocab(doc)
+		
+	def is_member(self, w):
+		r = self._db.get_from_new_vocab(w)
+		if r:
+			return True
+		else:
+			return None

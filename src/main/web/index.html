@@ -30,22 +30,30 @@
 
       function butSubmit_1_click() {
         var query = $("#txtSearchQueryInput").val();
-        issueAjaxCallOnSubmitQueryButtonPressed(query);
+        issueAjaxCallOnSubmitQueryButtonPressed(query, true);
       }
 
-      function issueAjaxCallOnSubmitQueryButtonPressed (query) {
+      function issueAjaxCallOnSubmitQueryButtonPressed (query, correctionSuggestionTurnedOn) {
         var encodedQuery = encodeURIComponent(query);
           $.ajax({
             url:"/api/query", 
-            data: "query=" + encodedQuery, success:
+            data: "query=" + encodedQuery + "&correctionSuggestionTurnedOn="+correctionSuggestionTurnedOn, success:
             function(result) {
               var j = parseJson(result);
               var resultMsg = getMessagesFromJson(j)
               var cat_full_name = getValuesFromJson(j, 'category-full-name')
               var result= getValuesFromJson(j, 'result')
               if (result=='no') {
+                var new_query_suggested = getValuesFromJson(j, 'new_query_suggested')
                 var token = getValuesFromJson(j, 'ticket-token')
-                resultMsg += '<br/>However, it is recommened that you can suggest a category to it by <a href="upload.html?token='+token+'">clicking here</a>.'
+                if (!is_undefined(new_query_suggested)) {
+                	$( "#hidNewSuggestedQuery")[0].value=resultMsg;
+                	resultMsg = '<h4>Oooppps, did you mean <b><font color=red>"'+resultMsg+'"</font></b> instead?</h4>'
+                	resultMsg += build_button('butAcceptQuerySuggestion', 'butAcceptQuerySuggestion', 'Oh! yes, thx!', 'useNewQueryAndSubmit')
+                	resultMsg += '&nbsp;&nbsp;'+build_button('butRejectQuerySuggestion', 'butRejectQuerySuggestion', 'No, keep my orig.\'s query', 'useOldQueryAndSubmit')                
+                } else if (token != '') {
+                	resultMsg += '<br/>However, it is recommened that you can suggest a category to it by <a href="upload.html?token='+token+'">clicking here</a>.'
+                }
               } else {
                 if(cat_full_name) {
                   resultMsg += '<h4>The full category is: <b>' + cat_full_name + '</b></h4>'
@@ -56,6 +64,18 @@
               displayResultMessage("#divQueryResult", resultMsg)
             } 
             });
+      }
+      
+      function useNewQueryAndSubmit() {
+        var v = $("#hidNewSuggestedQuery").val();
+      	$( "#txtSearchQueryInput" ).val(v);
+        issueAjaxCallOnSubmitQueryButtonPressed(v, false);
+        displayResultMessage("#divQueryResult", '')
+      }
+
+      function useOldQueryAndSubmit() {
+        displayResultMessage("#divQueryResult", '')
+        issueAjaxCallOnSubmitQueryButtonPressed($("#txtSearchQueryInput").val(), false);
       }
 
       function displayQueryCategorySuggestionHistogram (histogramHTML) {
@@ -101,18 +121,25 @@
   
 {% include "./static-pages/header.html" %}  
 
-<blockquote><h2 class="mainTitle">Welcome to Catssificator - beta version.<br/>It is an machine learning engine that predicts what categor(ies) that a given search query should belong to based on previous knowledges. </h2> </blockquote>
+<table>
+<tr>
+<td>
+&nbsp;&nbsp;
+</td>
+<td>
+<br/>
+  <blockquote><h2 class="mainTitle">Welcome to Catssificator - beta version.<br/>It is an machine learning engine that predicts what categor(ies) that a given search query should belong to based on previous knowledges. </h2> </blockquote>
   
   <table class="table table-striped table-bordered">
     <thead>
     <tr>
-    <th>Asks what is this query:</th>
+    <th>Your query/inquire:</th>
     </tr>
   </thead>
   <tbody>
   <tr>
     <td>
-          <textarea cols="350" rows="3" style="width:90%" id="txtSearchQueryInput" onclick="txtSearchQueryInput_click();" onkeyup="txtSearchQueryInput_update();" onblur="txtSearchQueryInput_update();">
+          <textarea cols="350" rows="1" style="width:90%" id="txtSearchQueryInput" onclick="txtSearchQueryInput_click();" onkeyup="txtSearchQueryInput_update();" onblur="txtSearchQueryInput_update();">
                   Your search query...
                 </textarea>
     </td>
@@ -120,7 +147,7 @@
     <tr>
     <td>
       <div id="divButtonsPanel_1">
-                        <input type="button" value="Send" name="butSubmit_1" id="butSubmit_1" onclick="butSubmit_1_click();">
+                        <input type="button" value="Ask" name="butSubmit_1" id="butSubmit_1" onclick="butSubmit_1_click();">
                         </div>
     </td>
     </tr>
@@ -129,11 +156,17 @@
 
         <div id="divQueryResult"></div>
         <div id="divQueryCategoryHistogram"></div>
-                
+        
+                            <input type="hidden" name="hidNewSuggestedQuery" id="hidNewSuggestedQuery" value="">
+        
     </td>
     </tr>
   </tr>
   </tbody>
   </table>
+
+</td>
+</tr>
+</table>
 
 {% include "./static-pages/footer.html" %}

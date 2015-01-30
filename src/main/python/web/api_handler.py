@@ -34,8 +34,10 @@ def get_full_name(arguments, from_who=''):
 
 def query(arguments, from_who=''):
     query = get_argument(arguments, 'query')
+    correction_suggestion_turned_on = get_argument(arguments, 'correctionSuggestionTurnedOn', is_boolean=True)
     _from_who=from_who
-    response_obj = QueryProcessor().inquire(query)
+    #debug()
+    response_obj = QueryProcessor().inquire(query, correction_suggestion_turned_on=correction_suggestion_turned_on)
     if JSON_API_Constants.query_category_histogram in response_obj:
         response_obj['query_category_histogram_html'] = UIBuilder.Instance().get_query_category_suggestions_histogram(response_obj[JSON_API_Constants.query_category_histogram])
     else:

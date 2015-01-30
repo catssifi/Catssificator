@@ -65,7 +65,7 @@ def is_num(x):
     except ValueError:
         return False
 
-##Algorithms part ####################################
+###Algorithms part ####################################
 
 #return from 0 to 100 in two decimals representing the percentage
 def divide_a_by_b(portion, total, round_to=2):
@@ -131,7 +131,24 @@ def is_in_the_list(l, search_item, nth=None):
         if g==search_item:
             return index
         index += 1
-            
+    return None
+
+def swap(o1, o2):
+    t=o2
+    o2=o1
+    o1=t
+    return o1, o2
+
+def calculate_two_words_distance(w1, w2):
+    if len(w1)>len(w2):
+        w1,w2=swap(w1,w2)
+    dif_count=0
+    for l in w1:
+        if not l in w2:
+            dif_count += 1
+    dif_count += (len(w2) - len(w1))
+    return dif_count
+
 ##Cookie related ########################################
 def remove_non_valid_chars(line):
     if line:
@@ -223,9 +240,12 @@ def real_lines(file_path, is_critical=False):
     finally:
         if file:
             file.close()
-    
+
+def get_files_only_from_dir(dir_p):
+    return [ f for f in listdir(dir_p) if isfile(join(dir_p,f)) ]
+
 def read_contents_from_dir(dir_p):
-    onlyfiles = [ f for f in listdir(dir_p) if isfile(join(dir_p,f)) ]
+    onlyfiles = get_files_only_from_dir(dir_p)
     contents = []
     for file in onlyfiles:
         lines_list=real_lines(dir_p+'/'+file)

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Copyright (c) 2015 Ken Wu
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -18,9 +17,11 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
-class JSON_API_Constants(object):
-    category = 'category'
-    
-    query_category_histogram = 'query_category_histogram'
-    
-    new_query_suggested='new_query_suggested'
+#This script is to populate the AI data (for the automatic sentence corrections/suggestions, user input syntax analysis..etc) to the system.  This can be running as a background thread parallel to the main server thread.  
+#It can be repeatedly run 
+
+echo "cd into $CLASSIFICATOR_HOME"
+cd $CLASSIFICATOR_HOME
+
+./src/maintenance/python/import_ai_data.py ./resources/ai/
+

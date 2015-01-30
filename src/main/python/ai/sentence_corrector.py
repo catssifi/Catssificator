@@ -18,10 +18,11 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
-from lib.utils import words,debug,get_sorted_turple_on_dict_by_value,get_word_tag_str,get_similar_words_with_word_tags,is_correct,edits1,is_known_word,is_in_the_list
+from lib.utils import words,debug,get_sorted_turple_on_dict_by_value,get_word_tag_str,get_similar_words_with_word_tags,is_correct,edits1,is_known_word,is_in_the_list,calculate_two_words_distance
 from lib.loggable import Loggable
 from textblob import TextBlob, Word
 from ai.ai_reader import AIReader, map_word_tag_to,WORD_TYPE_LIST,WORD_TYPE
+from ai.new_vocab_collections import NewVocabCollections
 #_words_counts_model = AIDatabaseBuilder.Instance().load_words_counts_model()
 
 THE_NUM_OF_TOP_WORD_TAGS_TO_RETRIEVED=2
@@ -89,6 +90,7 @@ def pick_the_mostly_grammar_correct_one(qualified_suggested_word_list, position_
     if not qualified_suggested_word_list:
         return None
     first_suggested_word = qualified_suggested_word_list[0][0]
+    original_word=sps[position_on_sps][0]
     #Rule 1: Pick 'Stronger' over 'Strong' if there is a 'Than' following it
     if position_on_sps < len(sps)-1 and sps[position_on_sps+1][0] in COMPAREABLE_WORD_RAW and get_word_tag_str(first_suggested_word)=='JJ':
         #Ok, i should pick the 'er' one instead if there exists one 
@@ -115,6 +117,12 @@ def pick_the_mostly_grammar_correct_one(qualified_suggested_word_list, position_
         right_is_adjective_or_noun_kind = (w_right and (map_word_tag_to(get_word_tag_str(w_right[0]))==WORD_TYPE().NOUN or map_word_tag_to(get_word_tag_str(w_right[0]))==WORD_TYPE().ADJ))
         if index and (left_is_adjective_kind or right_is_adjective_or_noun_kind):
             qualified_suggested_word_list=[qualified_suggested_word_list[index]]
+    
+    #Rule 3: If a suggested word is 'had' while the original word is 'has', don't bother with this small grammar stuffs and restore the original one
+    if is_in_the_list(qualified_suggested_word_list, original_word, nth=0):
+        word_distance = calculate_two_words_distance(first_suggested_word, original_word)
+        if word_distance <= 2:
+            qualified_suggested_word_list=Word(original_word).spellcheck()
         
     return qualified_suggested_word_list
 
@@ -123,6 +131,8 @@ class SentenceCorrector(Loggable):
     _sentence_str = ''
     _sentence=None
     _reader=None
+    _has_made_suggestions = False
+    _nc = NewVocabCollections.Instance()
     
     def __init__(self, sentence_str):
         self._sentence_str  = sentence_str
@@ -137,6 +147,8 @@ class SentenceCorrector(Loggable):
         suggested_words=list()
         suggested_new_sps=list(sps)
         for w in sps:
+            if self._nc.is_member(str(w[0])):   #skip it if it is a new vocab.
+                continue
             ww=Word(str(w[0])).spellcheck()
             is_this_current_word_spell_correct = False
             if is_correct(ww,str(w[0])):  #If it is correct, try to find all similar words to it
@@ -175,6 +187,10 @@ class SentenceCorrector(Loggable):
         
         suggested_sentence_str=self._sentence_str
         if suggested_words:
+            self._has_made_suggestions=True
             for suggested_word in suggested_words:
                 suggested_sentence_str = suggested_sentence_str.replace(suggested_word[0], suggested_word[1])
         return suggested_sentence_str
+    
+    def has_suggestions_been_made(self):
+        return self._has_made_suggestions
