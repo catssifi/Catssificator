@@ -23,28 +23,52 @@ from os.path import abspath, join, dirname
 sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/'))
 from lib.utils import debug
 from ai.sentence_corrector import SentenceCorrector
-from ai.ai_database_builder import AIDatabaseBuilder
+#from ai.ai_builder import AIBuilder
 import unittest
-
+from testcase.utils import build_test_passage
 
 class SentenceCorrectorTest(unittest.TestCase):
     
     _test_resources_base = None
-    _builder = None
+    #_builder = None
     
     def setUp(self):
-        self._builder = AIDatabaseBuilder.Instance()
-        self._test_resources_base = join(abspath(dirname('__file__')), '../../../resources/ai/test/')
-        self._builder.reset_whole_database()
-        inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test.txt')
+        #self._builder = AIBuilder.Instance()
+        #self._test_resources_base = join(abspath(dirname('__file__')), '../../../resources/ai/test/')
+        #self._builder.reset_whole_database()
+        #inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test.txt')
+        build_test_passage()
         
     
-    def test_sentence_suggestions(self):
-        orig_str='wher is the place'
-        corrector = SentenceCorrector(orig_str)
+    def test_sentence_suggestions_on_spelling_mistakes(self):
         
+        orig_str = 'a maee is stronger than female'
         #debug()
-        new_str=corrector.suggest()
-        #self.assertEqual(new_str, 'where is the place')
-        self.assertEqual(new_str, 'hello')
+        new_str = SentenceCorrector(orig_str).suggest()
+        self.assertEqual(new_str, 'a male is stronger than female')
+        
+        
+        orig_str = 'his decision has been maee'
+        new_str = SentenceCorrector(orig_str).suggest()
+        self.assertEqual(new_str, 'his decision has been made')
+        
+        orig_str = 'a male is strangee than female'
+        new_str = SentenceCorrector(orig_str).suggest()
+        self.assertEqual(new_str, 'a male is stranger than female')
+        
+        orig_str = 'a male is stranee thzn female'
+        new_str = SentenceCorrector(orig_str).suggest()
+        self.assertEqual(new_str, 'a male is stranger than female')
+    
+    def test_sentence_suggestions_on_NO_spelling_mistakes(self):
+        orig_str = 'a made is stronger than female'
+        new_str = SentenceCorrector(orig_str).suggest()
+        self.assertEqual(new_str, 'a male is stronger than female')
+        
+        #THis should be of no error
+        orig_str = 'a male is strong'
+        new_str = SentenceCorrector(orig_str).suggest()
+        self.assertEqual(new_str, 'a male is strong')
+        
+        
         

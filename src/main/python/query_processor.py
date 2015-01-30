@@ -27,6 +27,7 @@ from lib.utils import stem_all_words,dumps,debug,extract_head_tail,get_all_stop_
 from backend.category import Category
 from backend.database import SQLDatabase
 from web.constants import JSON_API_Constants
+from ai.sentence_corrector import SentenceCorrector
 
 class QueryProcessor(Loggable):
     _datastore = None
@@ -38,7 +39,15 @@ class QueryProcessor(Loggable):
         else:
             self._datastore=DataStoreFactory.factory()
     
-    def inquire(self, query, return_full_categories_if_not_found=False):
+    def inquire(self, query, return_full_categories_if_not_found=False, correction_suggestion_turned_on=True):
+        
+        #First i am going to go through the AI part to make sure the spelling is all correct:
+        if correction_suggestion_turned_on:
+            sc=SentenceCorrector(query)
+            new_query = sc.suggest()
+            if sc.has_suggestions_been_made():
+                return {"result":"no", "message":new_query, JSON_API_Constants.new_query_suggested:True}
+        
         words = self.process_query(query);
         category_score = {}
         response_obj={}

@@ -47,13 +47,6 @@ class DB_Constants(object):
 	tbl_Submission_Count_col_day_n = 'day_n'
 	tbl_Submission_Count_col_count = 'count'
 	
-	#This is for the AI optional database
-	tbl_Word_Occurrence = 'Word_Occurrence'
-	tbl_Word_Occurrence_col_id = 'rowid'
-	tbl_Word_Occurrence_col_word = 'word'
-	tbl_Word_Occurrence_col_occurrence = 'occurrence'
-	tbl_Word_Occurrence_col_last_update_time = 'last_update_time'
-	tbl_Word_Occurrence_idx_word = 'idx'+tbl_Word_Occurrence_col_word
 	
 	tbl_Processed_Path = 'Processed_Path' 		#This is the table which records all path or url links which has been processed
 	tbl_Processed_Path_col_id = 'rowid'

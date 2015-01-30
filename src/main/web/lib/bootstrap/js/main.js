@@ -115,3 +115,11 @@ function readCookie(name) {
             return null;
         }
 
+function build_button(id, name, value, onClickCallBack) {
+  return "<input type=\"button\" id=\""+id+"\" name=\""+name+"\" value=\""+value+"\" onclick=\""+onClickCallBack+"();\">"
+}
+
+function is_undefined(v) {
+  return typeof v=='undefined'
+}
+

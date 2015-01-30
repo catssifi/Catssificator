@@ -10,13 +10,12 @@ common:
 db:
 
   #This is the sql database location
-  location: 'database.db'
+  location: 'data/database.db'
   
 db-ai:
 
   #This is A.I. sql database location (This databaes is optional to exist in the system and it requires manually building this)
-  location: 'database-ai.db'
-  
+  location: 'data/database-ai.db'
 
 cache:
 

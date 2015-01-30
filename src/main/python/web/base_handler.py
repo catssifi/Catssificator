@@ -25,11 +25,18 @@ import pkg_resources
 from lib.utils import get_logger, unescape, debug
 
 #arguments is a dict object
-def get_argument(arguments, name):
+TRUE_VALUES = set(['true', 1, '1', 'T'])
+def get_argument(arguments, name, is_boolean=False):
     if name in arguments:
         v=arguments[name][0]
         if v and len(v)>0:
-            return unescape(v)
+            if is_boolean:
+                if v in TRUE_VALUES:
+                    return True
+                else:
+                    return False
+            else:
+                return unescape(v)
     return None
     
 class BaseHandler(tornado.web.RequestHandler):

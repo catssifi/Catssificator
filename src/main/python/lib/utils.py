@@ -30,6 +30,7 @@ import operator
 import ntpath
 import hashlib
 import re
+from textblob import TextBlob,Word
 from datetime import datetime, timedelta
 from pytz import timezone
 import pytz
@@ -42,7 +43,7 @@ from collections import Counter
 os.environ['TZ'] = 'UTC'
 STOP_WORDS=[u'&', u'i', u'me', u'my', u'myself', u'we', u'our', u'ours', u'ourselves', u'you', u'your', u'yours', u'yourself', u'yourselves', u'he', u'him', u'his', u'himself', u'she', u'her', u'hers', u'herself', u'it', u'its', u'itself', u'they', u'them', u'their', u'theirs', u'themselves', u'what', u'which', u'who', u'whom', u'this', u'that', u'these', u'those', u'am', u'is', u'are', u'was', u'were', u'be', u'been', u'being', u'have', u'has', u'had', u'having', u'do', u'does', u'did', u'doing', u'a', u'an', u'the', u'and', u'but', u'if', u'or', u'because', u'as', u'until', u'while', u'of', u'at', u'by', u'for', u'with', u'about', u'against', u'between', u'into', u'through', u'during', u'before', u'after', u'above', u'below', u'to', u'from', u'up', u'down', u'in', u'out', u'on', u'off', u'over', u'under', u'again', u'further', u'then', u'once', u'here', u'there', u'when', u'where', u'why', u'how', u'all', u'any', u'both', u'each', u'few', u'more', u'most', u'other', u'some', u'such', u'no', u'nor', u'not', u'only', u'own', u'same', u'so', u'than', u'too', u'very', u's', u't', u'can', u'will', u'just', u'don', u'should', u'now']
 STOP_WORDS_DICT = Counter(STOP_WORDS)
-
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
 def get_logger(name):
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
     logger = logging.getLogger(name+"--")
@@ -64,7 +65,7 @@ def is_num(x):
     except ValueError:
         return False
 
-##Algorithms part ####################################
+###Algorithms part ####################################
 
 #return from 0 to 100 in two decimals representing the percentage
 def divide_a_by_b(portion, total, round_to=2):
@@ -122,6 +123,32 @@ def map_keys_to_the_values(values_without_key, keys):
             i+=1
         new_key_value_list.append(obj)
     return new_key_value_list
+
+def is_in_the_list(l, search_item, nth=None):
+    index=0
+    for item in l:
+        g=item[nth] if nth != None else item
+        if g==search_item:
+            return index
+        index += 1
+    return None
+
+def swap(o1, o2):
+    t=o2
+    o2=o1
+    o1=t
+    return o1, o2
+
+def calculate_two_words_distance(w1, w2):
+    if len(w1)>len(w2):
+        w1,w2=swap(w1,w2)
+    dif_count=0
+    for l in w1:
+        if not l in w2:
+            dif_count += 1
+    dif_count += (len(w2) - len(w1))
+    return dif_count
+
 ##Cookie related ########################################
 def remove_non_valid_chars(line):
     if line:
@@ -143,6 +170,9 @@ def convert_s_to_date(s, format='%Y%m%d'):
 def convert_UTC_time_zone_to_Local_time_zone(utc_time, local_time_zone):
     return datetime.fromtimestamp( time.mktime(datetime.strptime(
                                     utc_time, "%Y-%m-%d %H:%M:%S").timetuple()) , pytz.timezone(local_time_zone))
+
+def enum(**enums):
+    return type('Enum', (), enums)
 
 #local_time_zone can be 'America/New_York'
 def convert_UTC_time_zones_to_Local_time_zones_in_bulk(map_results, time_col_name, local_time_zone='UTC'):
@@ -210,9 +240,12 @@ def real_lines(file_path, is_critical=False):
     finally:
         if file:
             file.close()
-    
+
+def get_files_only_from_dir(dir_p):
+    return [ f for f in listdir(dir_p) if isfile(join(dir_p,f)) ]
+
 def read_contents_from_dir(dir_p):
-    onlyfiles = [ f for f in listdir(dir_p) if isfile(join(dir_p,f)) ]
+    onlyfiles = get_files_only_from_dir(dir_p)
     contents = []
     for file in onlyfiles:
         lines_list=real_lines(dir_p+'/'+file)
@@ -231,7 +264,28 @@ def get_json_value(json_str, field_name):
 
 def dumps(data):
     return json.dumps(data)
-        
+
+## Language itselt ##################################
+class switch(object):
+    def __init__(self, value):
+        self.value = value
+        self.fall = False
+
+    def __iter__(self):
+        """Return the match method once, then stop"""
+        yield self.match
+        raise StopIteration
+    
+    def match(self, *args):
+        """Indicate whether or not to enter a case suite"""
+        if self.fall or not args:
+            return True
+        elif self.value in args: # changed for v1.5, see below
+            self.fall = True
+            return True
+        else:
+            return False
+
 ##Natural language processing part ########################################   
 stemmer = Stemmer.Stemmer('english')
 
@@ -246,7 +300,43 @@ def stem_all_words(word_list):
 
 def stem_word(word):
     return stemmer.stemWord(word)
-        
+
+def get_word_tag_str(single_word):
+    return str(TextBlob(single_word).tags[0][1])
+
+def is_known_word(single_word):
+    return is_correct(get_word_tag_str(single_word))
+
+def is_correct(ww, orig_word):
+    return len(ww)==1 and ww[0][1]==1.0 and orig_word==ww[0][0]
+def is_known_word(single_word):
+    c=Word(single_word).spellcheck()
+    if is_correct(c, single_word):
+      print str(c) + ' --- ' + single_word
+    return is_correct(c, single_word)
+
+def edits1(word):
+    if len(word) < 3:
+        return set([])
+    splits     = [(word[:i], word[i:]) for i in range(1, len(word))]
+    deletes    = [a + b[1:] for a, b in splits if b]
+    transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b)>1]
+    replaces   = [a + c + b[1:] for a, b in splits for c in alphabet if b]
+    inserts    = [a + c + b     for a, b in splits for c in alphabet]
+    return set(deletes + transposes + replaces + inserts)
+
+def edits2(word):
+    return set(e2 for e1 in edits1(word) for e2 in edits1(e1))
+
+def get_similar_words_with_word_tags(word, deep_level=1):
+    if deep_level==1:
+        ws=edits1(word)
+    else:
+        ws=edits2(word)
+    ws = filter(lambda x: is_known_word(x), ws)
+    ws = map(lambda x: (x, get_word_tag_str(x)), ws)
+    return ws
+
 ##Torando package util methods ############################################
 def get_httpfile(httpfile, field):
     value_str = httpfile[field]
@@ -255,6 +345,10 @@ def get_httpfile(httpfile, field):
     #        value_str = value_str[5:]
     return value_str
 ## String processing part #################################################
+def sentences(text):
+    blob=TextBlob(text)
+    return blob.sentences
+
 def convert_to_str(s):
     return str(s)
 
