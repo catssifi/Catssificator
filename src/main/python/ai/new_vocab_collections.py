@@ -30,6 +30,7 @@ class NewVocabCollections(object):
 		self._db = AI_NoSqlDatabase.Instance()
 
 	def add(self, w):
+		w=w.lower()
 		try:
 			is_m = self.is_member(w)
 		except IndexNotFoundException as e:
@@ -38,8 +39,9 @@ class NewVocabCollections(object):
 		self._db.add_to_new_vocab(doc)
 		
 	def is_member(self, w):
+		w=w.lower()
 		r = self._db.get_from_new_vocab(w)
 		if r:
 			return True
 		else:
-			return None
+			return False

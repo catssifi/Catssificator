@@ -40,6 +40,9 @@ class Frequency_Occurence(object):
      def __lt__(self, other):
          return (self.frequency <= other.frequency) and (self.occurence < other.occurence)
 
+def is_recongized_word(w, include_new_vocab=True):
+    return is_known_word(w) or NewVocabCollections.Instance().is_member(w)
+
 #word_tags is a list of format: list: [[('JJ', 8), ('NN', 4)], list: [('NN', 4)]]
 #It returns the list of the most predicted word_tag sorted, e.g. ['N', 'J']
 def reduce_from_word_tags_list(word_tags_list):
