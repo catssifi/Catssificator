@@ -23,5 +23,5 @@
 echo "cd into $CLASSIFICATOR_HOME"
 cd $CLASSIFICATOR_HOME
 
-./src/maintenance/python/import_ai_data.py ./resources/ai/
+sudo ./src/maintenance/python/import_ai_data.py ./resources/ai/
 

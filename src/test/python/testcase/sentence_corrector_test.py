@@ -22,15 +22,10 @@ import sys
 from os.path import abspath, join, dirname
 sys.path.insert(0, join(abspath(dirname('__file__')), '../../../src/main/python/'))
 from lib.utils import debug
-from ai.sentence_corrector import SentenceCorrector,is_recongized_word
-from ai.new_vocab_collections import NewVocabCollections
+from ai.sentence_corrector import SentenceCorrector
 #from ai.ai_builder import AIBuilder
 import unittest
 from testcase.utils import build_test_passage
-
-
-def add_to_new_vocab(w):
-    nc = NewVocabCollections.Instance().add(w)
 
 class SentenceCorrectorTest(unittest.TestCase):
     
@@ -43,16 +38,6 @@ class SentenceCorrectorTest(unittest.TestCase):
         #self._builder.reset_whole_database()
         #inserted = self._builder.add_build_from_file(self._test_resources_base+'BigTextForAiDatabase-test.txt')
         build_test_passage()
-    
-    def test_word_correctness(self):
-        w='iphone'
-        ans=is_recongized_word(w)
-        self.assertEqual(ans, False)
-        
-        add_to_new_vocab('Iphone')
-        
-        ans=is_recongized_word(w)
-        self.assertEqual(ans, True)
         
     
     def test_sentence_suggestions_on_spelling_mistakes(self):
@@ -84,5 +69,6 @@ class SentenceCorrectorTest(unittest.TestCase):
         orig_str = 'a male is strong'
         new_str = SentenceCorrector(orig_str).suggest()
         self.assertEqual(new_str, 'a male is strong')
+        
         
         

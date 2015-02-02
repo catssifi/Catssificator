@@ -378,6 +378,14 @@ def get_line_and_md5_from_file(f):
     all_contents_in_one_line = reduce(lambda x,y: x+y, lines)
     return (all_contents_in_one_line, generate_md5(all_contents_in_one_line))
 
+def index_of(s, search_str, beg=0, end=None):
+    try:
+        if not end:
+            end = len(s)
+        return s.index(search_str, beg, end)
+    except ValueError as e:
+        return None
+
 def unescape(s):
     s = convert_to_str(s)
     s = s.replace("%20", " ")

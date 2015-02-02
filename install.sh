@@ -52,5 +52,7 @@ python -m textblob.download_corpora
 #Now install the CodernityDB
 pip install CodernityDB
 
+pip install beautifulsoup4
+
 #also set the environment variables
 export CLASSIFICATOR_HOME="/Users/ken/workspace/category-classificator"
