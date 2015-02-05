@@ -75,8 +75,8 @@ Beverages
 
 ###Testings - for developors only
 #####Travis-ci build status:
-This version of Catssificator has been tested using Python series 2.6 and 2.7. Builds are checked with <a href="https://travis-ci.org/wwken/category-classificator" target="_blank">travis</a>:<br/>
-[![Build Status](https://travis-ci.org/wwken/category-classificator.svg)](https://travis-ci.org/wwken/category-classificator)
+This version of Catssificator has been tested using Python series 2.6 and 2.7. Builds are checked with <a href="https://travis-ci.org/catssifi/Catssificator" target="_blank">travis</a>:<br/>
+[![Build Status](https://api.travis-ci.org/catssifi/Catssificator.svg)](https://travis-ci.org/catssifi/Catssificator)
 #####Run the unit-tests locally:
 In the src/test/ folder, there are various test cases that make sure the program won't break easily.  To run all test cases, do:
 <pre>

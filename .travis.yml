@@ -24,6 +24,7 @@ before_script:
   - python -m textblob.download_corpora
 
   - pip install CodernityDB
+  - pip install beautifulsoup4
 
 
 test:

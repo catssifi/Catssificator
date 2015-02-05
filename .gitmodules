@@ -1,0 +1,3 @@
+[submodule "src/maintenance/python/webcrawler/wikipedia"]
+	path = src/maintenance/python/webcrawler/wikipedia
+	url = ../../scrapy/dirbot.git
