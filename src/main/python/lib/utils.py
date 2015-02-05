@@ -315,6 +315,10 @@ def is_known_word(single_word):
       print str(c) + ' --- ' + single_word
     return is_correct(c, single_word)
 
+def is_verb(w):
+    t =get_word_tag_str(w)
+    return len(t)>1 and t[:2] == 'VB' 
+
 def edits1(word):
     if len(word) < 3:
         return set([])

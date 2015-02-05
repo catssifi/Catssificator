@@ -18,7 +18,7 @@
 # Author: Ken Wu
 # Date: 2014 Dec - 2015
 
-from lib.utils import words,debug,get_sorted_turple_on_dict_by_value,get_word_tag_str,get_similar_words_with_word_tags,is_correct,edits1,is_known_word,is_in_the_list,calculate_two_words_distance
+from lib.utils import words,debug,get_sorted_turple_on_dict_by_value,get_word_tag_str,get_similar_words_with_word_tags,is_correct,edits1,is_known_word,is_in_the_list,calculate_two_words_distance,is_verb
 from lib.loggable import Loggable
 from textblob import TextBlob, Word
 from ai.ai_reader import AIReader, map_word_tag_to,WORD_TYPE_LIST,WORD_TYPE
@@ -124,7 +124,7 @@ def pick_the_mostly_grammar_correct_one(qualified_suggested_word_list, position_
     #Rule 3: If a suggested word is 'had' while the original word is 'has', don't bother with this small grammar stuffs and restore the original one
     if is_in_the_list(qualified_suggested_word_list, original_word, nth=0):
         word_distance = calculate_two_words_distance(first_suggested_word, original_word)
-        if word_distance <= 2:
+        if word_distance <= 2 and is_verb(original_word) and is_verb(first_suggested_word):
             qualified_suggested_word_list=Word(original_word).spellcheck()
         
     return qualified_suggested_word_list
